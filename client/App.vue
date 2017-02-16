@@ -9,12 +9,12 @@ export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Testing'
     }
   },
   
-  ready: function() {
-	console.log("aa");
+  mounted: function() {
+	console.log("working!");
   }
 }
 </script>
