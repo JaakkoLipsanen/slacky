@@ -1,7 +1,9 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from './app.vue'
+import store from './stores/store';
 
 new Vue({
-  el: '#app',
-  render: h => h(App)
-})
+	store,
+	el: '#app',
+	render: h => h(App)
+});

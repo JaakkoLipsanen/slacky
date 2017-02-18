@@ -7,11 +7,13 @@ const app = express();
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
+const path = require('path');
+
 const webpackHelper = require('./webpack-helper');
 webpackHelper.setup(app)
 
-const AssetFolder = 'public';
-app.use(express.static(AssetFolder)); 
+app.use(express.static('public')); 
+app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css'))); // so that '/css/bootstrap.min.js' works
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
