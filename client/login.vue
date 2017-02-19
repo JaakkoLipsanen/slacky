@@ -20,7 +20,7 @@ import ChatArea from './components/chat-area.vue';
 import Sidebar from './components/sidebar.vue';
 
 import axios from 'axios';
-import md5 from 'js-md5';
+import identicon from './misc/identicon';
 
 const UsernameState = {
 	Invalid: 0,
@@ -115,7 +115,7 @@ export default {
 			.catch(login.displayError);
 
 			// update the generated profile pic (which is based on username hash)
-			$(this.$refs.identicon).jdenticon(md5(this.username));
+			identicon.generate(this.$refs.identicon, this.username);
 		},
 
 		isNewPasswordValid: (pw) => pw.length > 4,
