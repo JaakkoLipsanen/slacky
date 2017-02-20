@@ -1,10 +1,9 @@
 const express = require('express');
 
 exports.setup = function(app) {
-	const isProduction = app.get('env') != 'development';
-	console.log("Setting up webpack for " + (isProduction ? "production" : "dev"));
+	console.log("Setting up webpack for " + (app.isProduction ? "production" : "dev"));
 	
-	if(isProduction) {
+	if(app.isProduction) {
 		// when in dev, the build.js is served by webpack-dev-middleware
 		// but in prod, it's compiled to /client/dist/build.js
 		app.use(express.static("client/dist"));

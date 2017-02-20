@@ -5,7 +5,7 @@
 				<p class="error-message"> {{ errorMessage }} </p>
 				<canvas class="generated-profile-pic" :class="{ visible: isValidUsername }" ref="identicon" width="106" height="106"></canvas>
 
-				<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" v-on:keyup="usernameChanged" ref="usernameInput" autocomplete="off">
+				<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" v-on:keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
 				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" :placeholder="passwordPlaceholderText" v-on:keyup="passwordChanged" ><br>
 						 	
 				<button class="enter-button" :class="{ visible: isValidUsername}" :disabled="isValidUsername && !isValidPassword" v-on:click="login">{{ enterButtonText }}</button>
@@ -19,7 +19,7 @@
 import ChatArea from './components/chat-area.vue';
 import Sidebar from './components/sidebar.vue';
 
-import axios from 'axios';
+import api from './api';
 import identicon from './misc/identicon';
 
 const UsernameState = {
@@ -101,18 +101,26 @@ export default {
 	},
 
 	methods: {	
-		displayError: function(error) { this.errorMessage = error.response.data.message },
+		displayError: function(err) { 
+
+			console.error(err);
+			if(err.response) {
+				this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
+			}
+			else {
+				this.errorMessage = err;
+			}
+		},
+
 		usernameChanged: function(event) {
 			if(!this.isValidUsername) {
 				this.usernameState = UsernameState.Invalid;
 				return;
 			}
 
-			const login = this;
-			axios.get('/api/user/' + this.username).then(function(response) {
-				login.usernameState = response.data.user.exists ? UsernameState.Exists : UsernameState.New;
-			})
-			.catch(login.displayError);
+			api.getUser(this.username)
+			.then(user => this.usernameState = user ? UsernameState.Exists : UsernameState.New )
+			.catch(this.displayError);
 
 			// update the generated profile pic (which is based on username hash)
 			identicon.generate(this.$refs.identicon, this.username);
@@ -126,28 +134,21 @@ export default {
 				return;
 			}
 
-			const login = this;
-			axios.get('/api/auth/query', { params: { username: this.username, password: this.password }}).then(function(response) {
-				login.passwordState = response.data.auth.correct ? PasswordState.Matches : PasswordState.Invalid;
-			})
-			.catch(login.displayError);
+			api.validateCredentials({ username: this.username, password: this.password })
+			.then(valid => this.passwordState = valid ? PasswordState.Matches : PasswordState.Invalid )
+			.catch(this.displayError);
 		},
 
 		login: function(event) {
 			
-			const login = this;
-			axios.get('/api/auth/login', { params: { username: this.username, password: this.password }}).then(function(response) {
-				if(response.data.auth.success) {
-					login.$root.moveToApp();
-				}
-				else {
-					login.errorMessage = response.data.auth.error;
-				}
+			const action = (this.usernameState === UsernameState.New) ? 'register' : 'login';
+			this.$store.dispatch({
+				type: action,
+				username: this.username,
+				password: this.password
 			})
-			.catch(login.displayError);
-
-			// TODO TEMPORARY
-			login.$root.moveToApp();
+			.then(() => this.$root.moveToApp())
+			.catch(this.displayError);
 		}
 	}
 }

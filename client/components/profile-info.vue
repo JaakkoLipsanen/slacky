@@ -1,7 +1,7 @@
 <template>
 	<div class="profile-container">
-		<img class="profile-pic" :src="$store.state.auth.user.profilePic" />
-		<h4 class="profile-username">{{ $store.state.auth.user.username }} </h4>
+		<img class="profile-pic" :src="$store.state.user.profilePic" />
+		<h4 class="profile-username">{{ $store.state.user.username }} </h4>
 	</div>
 </template>
 
@@ -28,10 +28,11 @@ export default {
 }
 
 .profile-pic {
-	width: 38px;
+	width: 40px;
 	display: inline-block;
 
 	border-radius: 20%;
+	background-color: white;
 }
 
 </style>

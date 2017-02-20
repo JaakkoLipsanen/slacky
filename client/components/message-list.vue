@@ -4,7 +4,7 @@
 			<div class="profile-pic" :style="'background-image: url(' + msg.sender.profilePic + ')'" />
 
 			<div>
-				<h4 class="message-sender">{{ msg.sender.displayName }}</h4>
+				<h4 class="message-sender">{{ msg.sender.username }}</h4>
 				<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
 				<h4 class="message-text">{{ msg.message }}</h1>
 			</div>

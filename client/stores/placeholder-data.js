@@ -1,7 +1,7 @@
 
 // placeholder data
-const Pekka = { username: "flai", displayName: "pekka", uid: 1, profilePic: "https://avatars1.githubusercontent.com/u/6358148?v=3&s=460" };
-const Anna = { username: "puu", displayName: "anna", uid: 2, profilePic: "http://pradostudio.com/wp-content/uploads/2014/02/BRANDING_LOGOS_1024X680_SPACEX.png" };
+const Pekka = { username: "pekka", uid: 1, profilePic: "https://avatars1.githubusercontent.com/u/6358148?v=3&s=460" };
+const Anna = { username: "anna", uid: 2, profilePic: "http://pradostudio.com/wp-content/uploads/2014/02/BRANDING_LOGOS_1024X680_SPACEX.png" };
 const createMessage = (sender, message) => { return { sender: sender, message: message, timestamp: new Date() } };
 
 const rooms = [
