@@ -43,7 +43,9 @@ export default {
 			axios.post('/api/connection')
 			.then(response => {
 
-				const socket = io.connect('http://localhost:' + response.data.port);
+				const isHeroku = process.env.PLATFORM === 'heroku';
+				console.log("Is heroku: " + isHeroku);
+				const socket = isHeroku ? io.connect() : io.connect('http://localhost:' + response.data.port);
 				socket.on('messages', function(data) {
 					onNewMessage(data);
 				});
