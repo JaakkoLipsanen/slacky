@@ -45,7 +45,8 @@ export default {
 
 				const isHeroku = process.env.PLATFORM === 'heroku';
 				console.log("Is heroku: " + isHeroku);
-				const socket = isHeroku ? io.connect() : io.connect('http://localhost:' + response.data.port);
+				console.log(process.env);
+				const socket = isHeroku ? io.connect() : io.connect(); // io.connect('http://localhost:' + response.data.port);
 				socket.on('messages', function(data) {
 					onNewMessage(data);
 				});
