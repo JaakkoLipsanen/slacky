@@ -1,5 +1,5 @@
 <template>
-	<textarea class="input-field" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
+	<textarea ref="inputField" class="input-field" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
 </template>
 
 <script>
@@ -7,6 +7,11 @@
 import { mapActions } from 'vuex';
 export default {
 	name: 'message-input',
+
+	mounted: function() {
+		this.forceAlwaysFocused(this.$refs.inputField);
+	},
+	
 	methods: {
 		onEnter: function(event) {
 			event.preventDefault(); // makes the element ignore the enter
@@ -19,6 +24,16 @@ export default {
 			}
 			
 			inputField.value = "";
+		},
+
+		forceAlwaysFocused: (textarea) => {
+			textarea.focus();
+			textarea.onblur = () => setTimeout(() => textarea.focus());
+			textarea.onkeydown = e => { 
+				// prevents default tab behavior (tab == 9)
+				const key = e.which || e.keyCode;
+				if(key == 9) e.preventDefault() 
+			};
 		},
 
 		...mapActions(['sendMessage'])
