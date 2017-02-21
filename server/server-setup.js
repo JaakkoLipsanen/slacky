@@ -4,6 +4,17 @@ const path = require('path');
 
 exports.setup = (app) => {
 	app.isProduction = (app.get('env') === 'production');
+	if(app.isProduction) {
+
+		// force https
+		app.use(function(req, res, next) {
+			if (req.headers['x-forwarded-proto'] !== 'https') {
+				return res.redirect(['https://', req.get('Host'), req.url].join(''));
+			}
+			return next();
+		});
+	}
+
 	
 	app.use(bodyParser.json()); // for parsing application/json
 	app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded

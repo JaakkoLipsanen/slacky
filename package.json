@@ -7,7 +7,7 @@
   "scripts": {
 	"start": "cross-env NODE_ENV=production node server/server.js",
     "dev": "cross-env NODE_ENV=development nodemon server/server.js",
-    "build": "cross-env NODE_ENV=production webpack --config build/webpack.production.config.js --progress --hide-modules",
+    "build": "cross-env NODE_ENV=production webpack -p --config build/webpack.production.config.js --progress --hide-modules",
     "production": "npm run build & npm run start"
   },
   "dependencies": {
