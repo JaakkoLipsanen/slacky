@@ -5,6 +5,7 @@
   "author": "JaakkoLipsanen <jaakko.lipsanen@outlook.com>",
   "private": true,
   "scripts": {
+	"start": "npm run production",
     "dev": "cross-env NODE_ENV=development nodemon server/server.js",
     "build": "cross-env NODE_ENV=production webpack --config build/webpack.production.config.js --progress --hide-modules",
     "production": "npm run build & cross-env NODE_ENV=production node server/server.js"
@@ -21,9 +22,7 @@
     "passport-local": "^1.0.0",
     "socket.io": "^1.7.2",
     "vue": "^2.1.0",
-    "vuex": "^2.1.2",
-    "webpack-dev-middleware": "^1.10.0",
-    "webpack-hot-middleware": "^2.17.0"
+    "vuex": "^2.1.2"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
@@ -40,6 +39,10 @@
     "vue-template-compiler": "^2.1.0",
     "webpack": "^2.2.0",
     "webpack-dev-server": "^2.2.0",
+    "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.17.0"
+  },
+  "engines": {
+    "node": "4.2.4"
   }
 }

@@ -1,5 +1,5 @@
 <template>
-	<textarea class="input-field" v-on:keydown.enter="onEnter" placeholder="enter message"></textarea>
+	<textarea class="input-field" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
 </template>
 
 <script>
