@@ -13,12 +13,14 @@ app.use(require('./routers/root'));
 
 // todo: normally in express, you'd call app.listen(..), but it doesn't work out of the box
 // with socket.io. Not sure if it matters, but look into it
-server.listen(3000, function () {
-	console.log('App listening on port 3000!');
+const PORT = process.env.PORT || 3000;
+app.set('port', PORT);
+server.listen(PORT, function () {
+	console.log('Server listening from port ' + PORT );
 });
 
 app.post('/api/connection', function(req, res) {	
-	res.json({ rooms: app.get('db').rooms });
+	res.json({ rooms: app.get('db').rooms, port: PORT });
 });
 
 

@@ -43,7 +43,7 @@ export default {
 			axios.post('/api/connection')
 			.then(response => {
 
-				const socket = io.connect('http://localhost:3000');
+				const socket = io.connect('http://localhost:' + response.data.port);
 				socket.on('messages', function(data) {
 					onNewMessage(data);
 				});
