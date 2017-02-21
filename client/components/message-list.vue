@@ -6,7 +6,7 @@
 			<div>
 				<h4 class="message-sender">{{ msg.sender.username }}</h4>
 				<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
-				<h4 class="message-text">{{ msg.message }}</h1>
+				<h4 class="message-text">{{ msg.text }}</h1>
 			</div>
 		</li>
 	</ul>
@@ -30,6 +30,8 @@ export default {
 	methods: {
 		formatTime: (date) => {
 			const pad = (num) => (num < 10 ? "0" : "") + num;
+			
+			date = new Date(date);
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
 		} 
 	}

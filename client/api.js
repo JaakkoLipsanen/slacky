@@ -35,5 +35,25 @@ export default {
 			.then((response) => resolve(response.data.user))
 			.catch(err => reject(err));
 		});
+	},
+
+	establishConnection(onNewMessage) {
+		return new Promise((resolve, reject) => {
+
+			axios.post('/api/connection')
+			.then(response => {
+
+				const socket = io.connect('http://localhost:3000');
+				socket.on('messages', function(data) {
+					onNewMessage(data);
+				});
+				
+				const initialData = response.data.rooms;
+				resolve({ rooms: initialData, sendMessageFunc: message => {
+					socket.emit('messages', message);	
+				} });
+			}) 
+			.catch(err => reject(err));
+		});
 	}
 }

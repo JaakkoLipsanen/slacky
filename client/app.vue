@@ -1,5 +1,5 @@
 <template>
-	<div id='app' class='row'>
+	<div v-if="$store.state.isInitialized" id='app' class='row'>
 		<Sidebar class='col-fixed-280'></Sidebar>
 		<ChatArea class='col-md-12 col-offset-280'></ChatArea>
 	</div>
@@ -16,6 +16,10 @@ export default {
 	components: {
 		Sidebar,
 		ChatArea
+	},
+
+	mounted: function() {
+		this.$store.dispatch('establishConnection');
 	}
 }
 </script>

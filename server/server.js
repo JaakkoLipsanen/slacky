@@ -16,3 +16,20 @@ app.use(require('./routers/root'));
 server.listen(3000, function () {
 	console.log('App listening on port 3000!');
 });
+
+app.post('/api/connection', function(req, res) {	
+	res.json({ rooms: app.get('db').rooms });
+});
+
+
+// TODO!!! encapsulate this into it's own file. maybe message store or i dont know...
+io.on('connection', function(socket) {
+	console.log('New user connected to slacky');
+
+	socket.on('messages', function(data) {
+		const message = app.get('db').createMessage(data);
+		if(message) {
+			io.emit('messages', message);
+		}
+	});
+});

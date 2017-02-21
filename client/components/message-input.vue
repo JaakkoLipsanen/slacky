@@ -4,7 +4,7 @@
 
 <script>
 
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 export default {
 	name: 'message-input',
 	methods: {
@@ -21,7 +21,7 @@ export default {
 			inputField.value = "";
 		},
 
-		...mapMutations(['sendMessage'])
+		...mapActions(['sendMessage'])
 	}
 }
 </script>

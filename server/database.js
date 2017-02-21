@@ -5,8 +5,14 @@ const users = [
 	{ username: 'puupaa', password: 'muumipeikko'},
 ];
 
+const rooms = [
+	{ name: "general", messages: [] },
+	{ name: "coding", messages: [] }
+];
+
 module.exports = {
 	users: users,
+	rooms: rooms,
 	findUser: function(username) {
 		const user = this.users.find(u => u.username === username);
 
@@ -20,5 +26,18 @@ module.exports = {
 
 		console.log("New user created: " + username);
 		return user;
+	},
+
+	createMessage: function(message) {
+		const room = this.rooms.find(room => room.name === message.room);
+		if(!room) {
+			console.error("Message received, but room was not found: " + message.room + ": " + message.text);
+			return null;
+		}
+		
+		message.timestamp = new Date();
+		room.messages.push(message);
+
+		return message;
 	}
 };
