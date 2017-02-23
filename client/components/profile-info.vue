@@ -67,7 +67,7 @@ $base-color: #898989;
 .logout-button {
 	position: relative;
 	right: 0px;
-	margin-left: 118px;
+	margin-left: 100px;
 	vertical-align: middle;
 	display: inline-block;
 

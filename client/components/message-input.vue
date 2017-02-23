@@ -1,5 +1,5 @@
 <template>
-	<textarea ref="inputField" class="input-field" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
+	<textarea class="input-field" ref="inputField" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
 </template>
 
 <script>
@@ -14,7 +14,7 @@ export default {
 	
 	methods: {
 		onEnter: function(event) {
-			event.preventDefault(); // makes the element ignore the enter
+			event.preventDefault(); // makes the element ignore default enter press behavior
 
 			const inputField = event.srcElement;
 			const text = inputField.value;

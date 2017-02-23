@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+
+import MessageClient from '../misc/message-client';
 import api from '../api';
 
 Vue.use(Vuex);
@@ -9,8 +11,8 @@ const state = {
 	currentRoom: null,
 	user: null,
 
-	isInitialized: false,
-	sendMessageFunc: null, // remove this from state and put it outside (above) as a 'global'? // meh.. don't really like this. but yeah, holds a function that sends message via sockets
+	isConnected: false, // todo: message client has isConnected() method actually which could (and does) provide more accurate info, use it?
+	messageClient: null,
 };
 
 const mutations = {
@@ -31,43 +33,48 @@ const mutations = {
 	initializeState(state, data) {
 		state.user = data.user;
 		state.rooms = data.rooms;
-		state.sendMessageFunc = data.sendMessageFunc;
+		state.isConnected = true;
 
 		if(state.rooms.length > 0) {
 			state.currentRoom = state.rooms[0];
 		}
-
-		state.isInitialized = true;
 	},
 
 	resetState(state) {
 		state.rooms = [];
 		state.currentRoom = null;
 		state.user = null;
+		state.isConnected = false;
 
-		state.isInitialized = false;
+		if(state.messageClient != null) {
+			state.messageClient.disconnect();
+			state.messageClient = null;
+		}
 	}
 };
 
 const actions = {
-
 	sendMessage: (context, message) => {
 		return new Promise((resolve, reject) => {
 
-			context.state.sendMessageFunc({ sender: context.state.user, room: context.state.currentRoom.name, text: message });
+			// todo: the sender should not be sent, it should be determined on the server!
+			context.state.messageClient.sendMessage({ sender: context.state.user, room: context.state.currentRoom.name, text: message });
 			resolve(); // TODO!!! never reject atm. I dont know.. should it be checked whether it's actually sent or something?
 		});
 	},
 
-	establishConnection(context) {
+	openConnection(context) {
 		return new Promise((resolve, reject) => {
-			
-			const onMessageReceived = message => {
-				context.commit('addReceivedMessage', { room: message.room, message: { sender: message.sender, text: message.text, timestamp: message.timestamp }});
-			};
 
-			api.establishConnection(onMessageReceived)
-			.then(initialData => { context.commit('initializeState', initialData); resolve(); })
+			console.log(context);
+			MessageClient.openConnection()
+			.then(response => {
+				context.commit('initializeState', response.initialData);
+
+				context.state.messageClient = response.messageClient;
+				context.state.messageClient.addMessageReceivedListener((room, message) => context.commit('addReceivedMessage', { room: room, message: message}));
+				resolve();
+			})
 			.catch(err => reject(err));
 		});
 	},

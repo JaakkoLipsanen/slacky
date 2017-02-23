@@ -1,6 +1,6 @@
 <template>
 	<div id='app' class='row'>
-		<template v-if="$store.state.isInitialized">
+		<template v-if="$store.state.isConnected">
 			<Sidebar class='col-fixed-280'></Sidebar>
 			<ChatArea class='col-md-12 col-offset-280'></ChatArea>
 		</template>
@@ -23,16 +23,16 @@ export default {
 	created() {
 		// :/ move this to login page and/or router? If on login page, there would also not be
 		// any chance of lag/hitchup on transitions
-		this.$store.dispatch('establishConnection')
+		this.$store.dispatch('openConnection')
 		.catch(err => {
-			if(err.data.type === 'auth') {
+			if(err.data && err.data.type === 'auth') {
 				// atm the App is the default page. So if user has not logged in before
 				// or has logged out, redirect to the login page
 				this.$router.redirect('Login');
 				return;
 			}	
 			
-			console.error("Unknown error in establishing connection");
+			console.error("Unknown error in establishing connection: " + err);
 		});
 	},
 }

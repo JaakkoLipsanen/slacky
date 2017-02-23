@@ -32,7 +32,7 @@ export default {
 		return new Promise((resolve, reject) => {
 
 			axios.post('/api/auth/user')
-			.then(response => resolve(response.user))
+			.then(response => resolve(response.data.user))
 			.catch(err => reject(err));
 		}); 
 	},
@@ -55,21 +55,11 @@ export default {
 		});
 	},
 
-	establishConnection(onNewMessage) {
+	openConnection(onNewMessage) {
 		return new Promise((resolve, reject) => {
 
 			axios.post('/api/connection')
-			.then(response => {
-
-				const socket = io.connect();
-				socket.on('messages', function(data) {
-					onNewMessage(data);
-				});
-				
-				resolve({ user: response.data.user, rooms: response.data.rooms, sendMessageFunc: message => {
-					socket.emit('messages', message);	
-				} });
-			}) 
+			.then(response => resolve(response))
 			.catch(err => reject(err.response));
 		});
 	}
