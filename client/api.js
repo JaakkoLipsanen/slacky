@@ -48,12 +48,11 @@ export default {
 					onNewMessage(data);
 				});
 				
-				const initialData = response.data.rooms;
-				resolve({ rooms: initialData, sendMessageFunc: message => {
+				resolve({ user: response.data.user, rooms: response.data.rooms, sendMessageFunc: message => {
 					socket.emit('messages', message);	
 				} });
 			}) 
-			.catch(err => reject(err));
+			.catch(err => reject(err.response));
 		});
 	}
 }

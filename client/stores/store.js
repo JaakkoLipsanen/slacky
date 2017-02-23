@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-
 import api from '../api';
-import identicon from '../misc/identicon';
 
 Vue.use(Vuex);
 
@@ -12,7 +10,7 @@ const state = {
 	user: null,
 
 	isInitialized: false,
-	sendMessageFunc: null, // meh.. don't really like this. but yeah, holds a function that sends message via sockets
+	sendMessageFunc: null, // remove this from state and put it outside (above) as a 'global'? // meh.. don't really like this. but yeah, holds a function that sends message via sockets
 };
 
 const mutations = {
@@ -20,16 +18,18 @@ const mutations = {
 		state.currentRoom = newRoom;
 	},
 
-	notifyLoggedIn: (state, user) => {
-		// meh, not good. What I should do is that when .profilePic is called, it is generated (also options for resolution?)
-		if(!user.profilePic) {
-			user.profilePic = identicon.generateToDataURL(40, 40, user.username);
+	addReceivedMessage: (state, payload) => {
+		const room = state.rooms.find(room => room.name === payload.room);
+		if(!room) {
+			console.error("Message received, but rooms was not found: " + payload.room + ": " + payload.message);
+			return;
 		}
 
-		state.user = user;
+		room.messages.push(payload.message);
 	},
 
 	initializeData: (state, data) => {
+		state.user = data.user;
 		state.rooms = data.rooms;
 		state.sendMessageFunc = data.sendMessageFunc;
 
@@ -42,31 +42,6 @@ const mutations = {
 };
 
 const actions = {
-	// todo: login and register are right now identical client-side save for the url, combine
-	login(context, userCredentials) {	
-
-		return new Promise((resolve, reject) => {
-
-			api.login(userCredentials)
-			.then(user => {
-				context.commit('notifyLoggedIn', user);
-				resolve(user);
-			})
-			.catch(err => reject(err));
-		});
-	},
-
-	register(context, userCredentials) {
-		return new Promise((resolve, reject) => {
-
-			api.register(userCredentials)
-			.then(user => {
-				context.commit('notifyLoggedIn', user);
-				resolve(user);
-			})
-			.catch(err => reject(err));
-		});
-	},
 
 	sendMessage: (context, message) => {
 		return new Promise((resolve, reject) => {
@@ -79,18 +54,12 @@ const actions = {
 	establishConnection(context) {
 		return new Promise((resolve, reject) => {
 			
-			const onNewMessage = message => {
-				const room = context.state.rooms.find(room => room.name === message.room);
-				if(!room) {
-					console.error("Message received, but rooms was not found: " + message.room + ": " + message.text);
-					return;
-				}
-
-				room.messages.push({ sender: message.sender, text: message.text, timestamp: message.timestamp });
+			const onMessageReceived = message => {
+				context.commit('addReceivedMessage', { room: message.room, message: { sender: message.sender, text: message.text, timestamp: message.timestamp }});
 			};
 
-			api.establishConnection(onNewMessage)
-			.then(data => context.commit('initializeData', data))
+			api.establishConnection(onMessageReceived)
+			.then(initialData => context.commit('initializeData', initialData))
 			.catch(err => reject(err));
 		});
 	}

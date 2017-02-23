@@ -1,13 +1,18 @@
 <template>
 	<div class="profile-container">
-		<img class="profile-pic" :src="$store.state.user.profilePic" />
+		<img class="profile-pic" :src="getProfilePic($store.state.user)" />
 		<h4 class="profile-username">{{ $store.state.user.username }} </h4>
 	</div>
 </template>
 
 <script>
+import profilePicCache from '../misc/profile-pic-cache';
 export default {
 	name: 'profile-info',
+
+	methods: {
+		getProfilePic: user => profilePicCache.get(user)
+	}
 }
 </script>
 

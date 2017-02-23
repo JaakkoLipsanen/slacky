@@ -13,6 +13,8 @@ const rooms = [
 module.exports = {
 	users: users,
 	rooms: rooms,
+
+	// todo: this should probably return user without password. create separate function for checking password
 	findUser: function(username) {
 		const user = this.users.find(u => u.username === username);
 

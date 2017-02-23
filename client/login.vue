@@ -6,7 +6,7 @@
 				<canvas class="generated-profile-pic" :class="{ visible: isValidUsername }" ref="identicon" width="106" height="106"></canvas>
 
 				<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" v-on:keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
-				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" :placeholder="passwordPlaceholderText" v-on:keyup="passwordChanged" ><br>
+				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" :placeholder="passwordPlaceholderText" v-on:keyup="passwordChanged" v-on:keydown.enter="login" ><br>
 						 	
 				<button class="enter-button" :class="{ visible: isValidUsername}" :disabled="isValidUsername && !isValidPassword" v-on:click="login">{{ enterButtonText }}</button>
 			</div>
@@ -47,6 +47,10 @@ export default {
 
 			errorMessage: "",
 		}
+	},
+
+	mounted: function() {
+		this.errorMessage = this.$root.pageParams.errorMessage || "";
 	},
 
 	computed: {
@@ -141,17 +145,17 @@ export default {
 
 		login: function(event) {
 			
-			const action = (this.usernameState === UsernameState.New) ? 'register' : 'login';
-			this.$store.dispatch({
-				type: action,
+			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
+			loginFunction({
 				username: this.username,
 				password: this.password
 			})
-			.then(() => this.$root.moveToApp())
+			.then(() => this.$root.redirect('App'))
 			.catch(this.displayError);
 		}
 	}
 }
+
 </script>
 
 <style lang='scss' scoped>

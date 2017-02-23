@@ -4,6 +4,9 @@ const session = require('express-session');
 
 // Configure passport.js
 const configPassport = (app) => {
+	
+	app.use(passport.initialize());
+	app.use(passport.session());
 
 	// checks whether username and password are valid
 	passport.use(new LocalStrategy(
@@ -39,9 +42,6 @@ const configPassport = (app) => {
 
 module.exports = {
 	setup: (app) => {
-		app.use(passport.initialize());
-		app.use(passport.session());
-
 		app.use(session({
 			secret: process.env.SESSION_SECRET || 'some_random_chars_sagkdjghskldsgjkdsg',
 			resave: false,
@@ -65,6 +65,14 @@ module.exports = {
 
 			req.login(user, function(err) {
 				if (err) { return next(err); }
+
+				// TODO: req.remember doesnt exists, just a placeholder
+				if(req.remember) {
+					req.session.cookie.maxAge = 2 * 24 * 60 * 60 * 1000; // two days
+				}
+				else {
+					req.session.cookie.expires = false;
+				}
 
 				console.log("Login succesful");
 				return res.json({ user: user });
@@ -99,12 +107,12 @@ module.exports = {
 		console.error("Logout not implemented");
 	},
 
-	/*isAuthenticated: (req, res, next) => {
+	requireAuthenticated: (req, res, next) => {
 		if (!req.user) {
-			req.flash('error', 'You must be logged in.');
-			return res.redirect('/');
+			res.status(401).json( { type: 'auth', message: 'You must be logged in' });
+			return;
 		}
 
 		return next();
-	} */
+	}
 };

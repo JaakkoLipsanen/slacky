@@ -1,7 +1,9 @@
 <template>
-	<div v-if="$store.state.isInitialized" id='app' class='row'>
-		<Sidebar class='col-fixed-280'></Sidebar>
-		<ChatArea class='col-md-12 col-offset-280'></ChatArea>
+	<div id='app' class='row'>
+		<template v-if="$store.state.isInitialized">
+			<Sidebar class='col-fixed-280'></Sidebar>
+			<ChatArea class='col-md-12 col-offset-280'></ChatArea>
+		</template>
 	</div>
 </template>
 
@@ -19,7 +21,17 @@ export default {
 	},
 
 	mounted: function() {
-		this.$store.dispatch('establishConnection');
+		this.$store.dispatch('establishConnection')
+		.catch(err => {
+			if(err.data.type === 'auth') {
+				// atm the App is the default page. So if user has not logged in before
+				// or has logged out, redirect to the login page
+				this.$root.redirect('Login');
+				return;
+			}	
+			
+			console.error("Unknown error in establishing connection");
+		});
 	}
 }
 </script>

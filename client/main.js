@@ -5,15 +5,15 @@ import store from './stores/store';
 
 new Vue({
 	store,
-	el: '#app',
+	el: '#root',
 	render: h =>  h(Root),
 
 	data: function() { 
-		return { currentView: 'Login' } 
+		return { currentView: 'App', pageParams: { } } 
 	},
 
 	methods: {
-		moveToApp: function() { this.currentView = 'App'; }
+		redirect: function(page, params = { }) { this.pageParams = params; this.currentView = page; }
 	},
 
 	components: {

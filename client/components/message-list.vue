@@ -1,7 +1,7 @@
 <template>
 	<ul class='message-list'>
 		<li class="message-block" v-for="msg in displayedMessages">
-			<div class="profile-pic" :style="'background-image: url(' + msg.sender.profilePic + ')'" />
+			<div class="profile-pic" :style="'background-image: url(' + getProfilePic(msg.sender) + ')'" />
 
 			<div>
 				<h4 class="message-sender">{{ msg.sender.username }}</h4>
@@ -14,6 +14,7 @@
 
 <script>
 
+import profilePicCache from '../misc/profile-pic-cache';
 import { mapState } from 'vuex';
 export default {
 
@@ -33,7 +34,9 @@ export default {
 			
 			date = new Date(date);
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
-		} 
+		},
+
+		getProfilePic: (user) => profilePicCache.get(user)
 	}
 }
 </script>

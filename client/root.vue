@@ -22,7 +22,7 @@ export default {
 .fade-enter-active, .fade-leave-active {
 	transition: opacity 0.25s ease;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter, .fade-leave-to, .component-fade-leave-active {
 	opacity: 0;
 }
 
