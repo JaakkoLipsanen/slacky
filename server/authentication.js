@@ -55,6 +55,10 @@ module.exports = {
 
 	// login and register could maybe possibly idontknow combined :P ?
 	login: (req, res, next) => {
+		if(req.user) {
+			req.logout();
+		}
+
 		return passport.authenticate('local', function(err, user, info) {
 			if (err) { return next(err); }
 
@@ -104,7 +108,12 @@ module.exports = {
 	},
 
 	logout: (req, res, next) => {
-		console.error("Logout not implemented");
+		req.logout();
+		res.status(200).send();
+	},
+
+	loggedInUser(req, res, next) {
+		res.json({ user: req.user });
 	},
 
 	requireAuthenticated: (req, res, next) => {

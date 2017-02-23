@@ -20,11 +20,12 @@ server.listen(PORT, function () {
 });
 
 
+// TODO: LOG OUT IS NOT SUPPORTED. IF USER LOGS OUT AND THEN LOGS IN, THERE'S
 // TODO!!! encapsulate this into it's own file. maybe message store or i dont know...
-io.use(function(socket, next) {
+io.use(function(client, next) {
 	// todo: authentication here?
 	next();
-}).on('connection', function(client) {
+}).on('connection', function(client) { // TODO: atm one client can have multiple connections here... limit to 1 per user
 	console.log('New user connected to slacky');
 
 	client.on('messages', function(data) {

@@ -19,11 +19,29 @@ export default {
 		});
 	},
 
+	logout(userCredentials) {
+		return new Promise((resolve, reject) => {
+
+			axios.post('/api/auth/logout')
+			.then(() => resolve())
+			.catch(err => reject(err));
+		});
+	},
+
+	getCurrentUser() {
+		return new Promise((resolve, reject) => {
+
+			axios.post('/api/auth/user')
+			.then(response => resolve(response.user))
+			.catch(err => reject(err));
+		}); 
+	},
+
 	validateCredentials(userCredentials) {
 		return new Promise((resolve, reject) => {
 
 			axios.post('/api/auth/validate-credentials', userCredentials)
-			.then((response) => resolve(response.data.valid) )
+			.then(response => resolve(response.data.valid) )
 			.catch(err => reject(err));
 		});
 	},

@@ -2,16 +2,38 @@
 	<div class="profile-container">
 		<img class="profile-pic" :src="getProfilePic($store.state.user)" />
 		<h4 class="profile-username">{{ $store.state.user.username }} </h4>
+
+		<a class="logout-button" v-on:click="logout">log out</a>
 	</div>
 </template>
 
 <script>
+
+import api from '../api';
 import profilePicCache from '../misc/profile-pic-cache';
+
 export default {
 	name: 'profile-info',
 
 	methods: {
-		getProfilePic: user => profilePicCache.get(user)
+		getProfilePic: user => profilePicCache.get(user),
+		logout() {
+
+			// TODO: clean this up (move to helper file or something?)
+			api.logout()
+			.then(() => {
+				this.$router.redirect('Login')
+				.then(() => this.$store.commit('resetState')) // reset only after animation
+				.catch(err => console.log(`Error on logout: ${err}`));
+			})
+			.catch((err) => {
+				console.error(`Error on logout: ${err}`);
+
+				this.$router.redirect('Login')
+				.then(() => this.$store.commit('resetState')) // reset only after animation
+				.catch(err => console.log(`Error on logout: ${err}`));
+			})
+		}
 	}
 }
 </script>
@@ -38,6 +60,32 @@ export default {
 
 	border-radius: 20%;
 	background-color: white;
+}
+
+/* todo: this is not very well done atm :P it's manually positioned and doesn't scale if sidebar width changes */
+$base-color: #898989;
+.logout-button {
+	position: relative;
+	right: 0px;
+	margin-left: 118px;
+	vertical-align: middle;
+	display: inline-block;
+
+	font-size: 16px;
+	color: lighten($base-color, 5);
+
+	cursor: pointer;
+	user-select: none;
+
+	&:hover {
+		color: darken($base-color, 5);
+		text-decoration: none;
+	}
+
+	&:active {
+		color: darken($base-color, 10);
+		text-decoration: none;
+	}
 }
 
 </style>

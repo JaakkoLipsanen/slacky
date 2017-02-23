@@ -1,22 +1,21 @@
 import Vue from 'vue'
 
-import Root from './root.vue';
+import Router from './router.vue';
 import store from './stores/store';
+
+// defines this.$router in all vue components.. kinda hacky, maybe separate router into own class?
+Vue.mixin({ 
+	beforeCreate: function() {
+		this.$router = this.$root.$children[0];
+	}
+});
 
 new Vue({
 	store,
 	el: '#root',
-	render: h =>  h(Root),
-
-	data: function() { 
-		return { currentView: 'App', pageParams: { } } 
-	},
-
-	methods: {
-		redirect: function(page, params = { }) { this.pageParams = params; this.currentView = page; }
-	},
+	render: h =>  h(Router),
 
 	components: {
-		Root,
+		Router,
 	}
 });

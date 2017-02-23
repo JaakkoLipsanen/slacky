@@ -14,11 +14,11 @@ const state = {
 };
 
 const mutations = {
-	changeRoom: (state, newRoom) => {
+	changeRoom(state, newRoom) {
 		state.currentRoom = newRoom;
 	},
 
-	addReceivedMessage: (state, payload) => {
+	addReceivedMessage(state, payload) {
 		const room = state.rooms.find(room => room.name === payload.room);
 		if(!room) {
 			console.error("Message received, but rooms was not found: " + payload.room + ": " + payload.message);
@@ -28,7 +28,7 @@ const mutations = {
 		room.messages.push(payload.message);
 	},
 
-	initializeData: (state, data) => {
+	initializeState(state, data) {
 		state.user = data.user;
 		state.rooms = data.rooms;
 		state.sendMessageFunc = data.sendMessageFunc;
@@ -38,6 +38,14 @@ const mutations = {
 		}
 
 		state.isInitialized = true;
+	},
+
+	resetState(state) {
+		state.rooms = [];
+		state.currentRoom = null;
+		state.user = null;
+
+		state.isInitialized = false;
 	}
 };
 
@@ -59,10 +67,10 @@ const actions = {
 			};
 
 			api.establishConnection(onMessageReceived)
-			.then(initialData => context.commit('initializeData', initialData))
+			.then(initialData => { context.commit('initializeState', initialData); resolve(); })
 			.catch(err => reject(err));
 		});
-	}
+	},
 };
 
 export default new Vuex.Store({

@@ -9,7 +9,7 @@ const config = {
 	padding: 0.08
 };
 
-const hash = (str) => md5(str + "asfas");
+const hash = (str) => md5(str);
 const generate = (element, string) => {	
 	if(!jdenticon) {
 		console.error("identicon.generate: jdenticon not found");

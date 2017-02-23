@@ -20,19 +20,21 @@ export default {
 		ChatArea
 	},
 
-	mounted: function() {
+	created() {
+		// :/ move this to login page and/or router? If on login page, there would also not be
+		// any chance of lag/hitchup on transitions
 		this.$store.dispatch('establishConnection')
 		.catch(err => {
 			if(err.data.type === 'auth') {
 				// atm the App is the default page. So if user has not logged in before
 				// or has logged out, redirect to the login page
-				this.$root.redirect('Login');
+				this.$router.redirect('Login');
 				return;
 			}	
 			
 			console.error("Unknown error in establishing connection");
 		});
-	}
+	},
 }
 </script>
 

@@ -50,7 +50,7 @@ export default {
 	},
 
 	mounted: function() {
-		this.errorMessage = this.$root.pageParams.errorMessage || "";
+		this.errorMessage = this.$router.pageParams.errorMessage || "";
 	},
 
 	computed: {
@@ -150,7 +150,7 @@ export default {
 				username: this.username,
 				password: this.password
 			})
-			.then(() => this.$root.redirect('App'))
+			.then(() => this.$router.redirect('App'))
 			.catch(this.displayError);
 		}
 	}

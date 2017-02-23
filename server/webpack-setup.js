@@ -21,9 +21,9 @@ exports.setup = function(app) {
 		app.use(webpackDevMiddleware(compiler, {
 			publicPath: webpackConfig.output.publicPath,
 			stats: {  
-			colors: true,
-            chunks: false, // reduces stuff visible
-            'errors-only': true
+				colors: true,
+				chunks: false, // reduces stuff visible
+				'errors-only': true
 			}
 		}));
 
