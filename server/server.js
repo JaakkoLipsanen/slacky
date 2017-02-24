@@ -11,24 +11,20 @@ require('./authentication').setup(app);
 app.set('db', require('./database'));
 app.use(require('./routers/root'));
 
-// todo: normally in express, you'd call app.listen(..), but it doesn't work out of the box
-// with socket.io. Not sure if it matters, but look into it
-const PORT = process.env.PORT || 3000;
-app.set('port', PORT);
-server.listen(PORT, function () {
-	console.log('Server listening from port ' + PORT );
+server.listen(app.get('port'), () => {
+	console.log(`Server listening from port ${app.get('port')}`);
 });
 
 
 // TODO: LOG OUT IS NOT SUPPORTED. IF USER LOGS OUT AND THEN LOGS IN, THERE'S
 // TODO!!! encapsulate this into it's own file. maybe message store or i dont know...
-io.use(function(client, next) {
+io.use((client, next) => {
 	// todo: authentication here?
 	next();
-}).on('connection', function(client) { // TODO: atm one client can have multiple connections here... limit to 1 per user
+}).on('connection', client => { // TODO: atm one client can have multiple connections here... limit to 1 per user
 	console.log('New user connected to slacky');
 
-	client.on('messages', function(data) {
+	client.on('messages', data => {
 		const message = app.get('db').createMessage(data);
 		if(message) {
 			io.emit('messages', message);

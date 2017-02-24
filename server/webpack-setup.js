@@ -1,6 +1,6 @@
 const express = require('express');
 
-exports.setup = function(app) {
+exports.setup = (app) => {
 	console.log("Setting up webpack for " + (app.isProduction ? "production" : "dev"));
 	
 	if(app.isProduction) {

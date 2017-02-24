@@ -8,12 +8,12 @@ import { mapActions } from 'vuex';
 export default {
 	name: 'message-input',
 
-	mounted: function() {
+	mounted() {
 		this.forceAlwaysFocused(this.$refs.inputField);
 	},
 	
 	methods: {
-		onEnter: function(event) {
+		onEnter(event) {
 			event.preventDefault(); // makes the element ignore default enter press behavior
 
 			const inputField = event.srcElement;
@@ -26,7 +26,7 @@ export default {
 			inputField.value = "";
 		},
 
-		forceAlwaysFocused: (textarea) => {
+		forceAlwaysFocused(textarea) {
 			textarea.focus();
 			textarea.onblur = () => setTimeout(() => textarea.focus());
 			textarea.onkeydown = e => { 

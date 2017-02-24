@@ -54,7 +54,7 @@ const mutations = {
 };
 
 const actions = {
-	sendMessage: (context, message) => {
+	sendMessage(context, message) {
 		return new Promise((resolve, reject) => {
 
 			// todo: the sender should not be sent, it should be determined on the server!
@@ -66,7 +66,6 @@ const actions = {
 	openConnection(context) {
 		return new Promise((resolve, reject) => {
 
-			console.log(context);
 			MessageClient.openConnection()
 			.then(response => {
 				context.commit('initializeState', response.initialData);

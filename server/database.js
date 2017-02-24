@@ -15,14 +15,14 @@ module.exports = {
 	rooms: rooms,
 
 	// todo: this should probably return user without password. create separate function for checking password
-	findUser: function(username) {
+	findUser(username) {
 		const user = this.users.find(u => u.username === username);
 
 		// Object.assign creates a shallow copy
 		return user ? Object.assign({}, user) : undefined;
 	},
 
-	createUser: function(username, password) {
+	createUser(username, password) {
 		const user = { username: username, password: password };
 		this.users.push(user);
 
@@ -30,7 +30,7 @@ module.exports = {
 		return user;
 	},
 
-	createMessage: function(message) {
+	createMessage(message) {
 		const room = this.rooms.find(room => room.name === message.room);
 		if(!room) {
 			console.error("Message received, but room was not found: " + message.room + ": " + message.text);

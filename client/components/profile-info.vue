@@ -40,7 +40,9 @@ export default {
 
 <style lang="scss">
 
+$container-height: 40px;
 .profile-container {
+	height: $container-height;
 	margin-top: 24px;
 }
 
@@ -51,11 +53,12 @@ export default {
 	display: inline-block;
 
 	vertical-align: middle;
+	margin: 0;
 	margin-left: 4px;
 }
 
 .profile-pic {
-	width: 40px;
+	height: 100%;
 	display: inline-block;
 
 	border-radius: 20%;
@@ -65,11 +68,12 @@ export default {
 /* todo: this is not very well done atm :P it's manually positioned and doesn't scale if sidebar width changes */
 $base-color: #898989;
 .logout-button {
-	position: relative;
-	right: 0px;
-	margin-left: 100px;
-	vertical-align: middle;
-	display: inline-block;
+
+	float: right;
+	margin-right: 16px;
+	line-height: $container-height;
+	max-width: calc(100% - 120px);
+	overflow: hidden;
 
 	font-size: 16px;
 	color: lighten($base-color, 5);

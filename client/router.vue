@@ -16,7 +16,7 @@ export default {
 		Login
 	},
 
-	data: function() { 
+	data() { 
 		return { 
 			currentView: '', 
 			pageParams: { }, 

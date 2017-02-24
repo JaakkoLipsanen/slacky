@@ -14,7 +14,7 @@ export default {
 	name: 'room-list',
 
 	computed: {
-		rooms: function() {
+		rooms() {
 			return this.$store.state.rooms;
 		},
 

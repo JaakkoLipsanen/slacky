@@ -23,20 +23,19 @@ export default {
 		...mapState(['currentRoom']),
 
 		// why? see explanation below in the css
-		displayedMessages: function() { 
+		displayedMessages() { 
 			return this.currentRoom.messages.slice().reverse();
 		},
 	},
 
 	methods: {
-		formatTime: (date) => {
+		getProfilePic: (user) => profilePicCache.get(user),
+		formatTime(date) {
 			const pad = (num) => (num < 10 ? "0" : "") + num;
 			
 			date = new Date(date);
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
-		},
-
-		getProfilePic: (user) => profilePicCache.get(user)
+		}
 	}
 }
 </script>

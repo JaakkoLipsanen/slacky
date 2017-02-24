@@ -41,7 +41,7 @@ const configPassport = (app) => {
 };
 
 module.exports = {
-	setup: (app) => {
+	setup(app) {
 		app.use(session({
 			secret: process.env.SESSION_SECRET || 'some_random_chars_sagkdjghskldsgjkdsg',
 			resave: false,
@@ -54,12 +54,12 @@ module.exports = {
 	},
 
 	// login and register could maybe possibly idontknow combined :P ?
-	login: (req, res, next) => {
+	login(req, res, next) {
 		if(req.user) {
 			req.logout();
 		}
 
-		return passport.authenticate('local', function(err, user, info) {
+		return passport.authenticate('local', (err, user, info) => {
 			if (err) { return next(err); }
 
 			if (!user) { 		
@@ -67,7 +67,7 @@ module.exports = {
 				return res.status(401).json({ error: "User not found" });
 			}
 
-			req.login(user, function(err) {
+			req.login(user, err => {
 				if (err) { return next(err); }
 
 				// TODO: req.remember doesnt exists, just a placeholder
@@ -84,7 +84,7 @@ module.exports = {
 		})(req, res, next); 
 	},
 
-	register: (req, res, next) => {
+	register(req, res, next) {
 		const db = req.app.get('db');
 		const user = db.findUser(req.body.username);
 		if(user) {
@@ -99,7 +99,7 @@ module.exports = {
 			return;
 		}
 
-		req.login(createdUser, function(err) {
+		req.login(createdUser, err => {
 			if (err) { return next(err); }		
 
 			console.log("Login succesful");
@@ -107,7 +107,7 @@ module.exports = {
 		});
 	},
 
-	logout: (req, res, next) => {
+	logout(req, res, next) {
 		req.logout();
 		res.status(200).send();
 	},
@@ -116,7 +116,7 @@ module.exports = {
 		res.json({ user: req.user });
 	},
 
-	requireAuthenticated: (req, res, next) => {
+	requireAuthenticated(req, res, next) {
 		if (!req.user) {
 			res.status(401).json( { type: 'auth', message: 'You must be logged in' });
 			return;

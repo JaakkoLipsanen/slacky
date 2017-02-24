@@ -6,7 +6,7 @@ const ProfilePicSize = 40;
 const generaterProfilePics = new Map();
 
 export default {
-	get: (user) => {
+	get(user) {
 		if(user.profilePic) {
 			return user.profilePic;
 		}

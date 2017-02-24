@@ -37,7 +37,7 @@ const PasswordState = {
 export default {
 
 	name: 'login',
-	data: function() {
+	data() {
 		return {			
 			username: "",
 			usernameState: UsernameState.Invalid,
@@ -49,39 +49,39 @@ export default {
 		}
 	},
 
-	mounted: function() {
+	mounted() {
 		this.errorMessage = this.$router.pageParams.errorMessage || "";
 	},
 
 	computed: {
-		isValidUsername: function() {		
-			return this.username.length >= 4 && this.username.length < 20 && (/^[a-zA-Z0-9-_]+$/).test(this.username); // alphanumerics and _ -
+		isValidUsername() {		
+			return this.username.length >= 4 && this.username.length < 14 && (/^[a-zA-Z0-9-_]+$/).test(this.username); // alphanumerics and _ -
 		},
 
-		usernameInputClasses: function() {
+		usernameInputClasses() {
 			return {
 				'invalid-input': !this.isValidUsername && this.username.length !== 0
 			};
 		},
 
-		isValidPassword: function() { 4;
+		isValidPassword() {
 			return (this.usernameState === UsernameState.Exists && this.passwordState === PasswordState.Matches) ||
 				   (this.usernameState === UsernameState.New) && (this.password.length === 0 || this.isNewPasswordValid(this.password));
 		},
 
-		passwordInputClasses: function() {
+		passwordInputClasses() {
 			return {
 				'visible': this.isValidUsername,
 				'invalid-input': this.password.length != 0 && !this.isValidPassword
 			};
 		},
 
-		passwordPlaceholderText: function() {
+		passwordPlaceholderText() {
 			const passwordRequired = this.usernameState !== UsernameState.New;
 			return passwordRequired ? 'Enter password' : 'Enter password (optional)';
 		},
 
-		isEnterButtonDisabled: function() {
+		isEnterButtonDisabled() {
 			if(this.usernameState === UsernameState.Exists) {
 				return this.passwordState === PasswordState.Matches;
 			}
@@ -89,7 +89,7 @@ export default {
 			return false;
 		},
 		
-		enterButtonText: function() {
+		enterButtonText() {
 			if(this.usernameState === UsernameState.Exists) {
 				return "Log in to Slacky";
 			}
@@ -105,9 +105,7 @@ export default {
 	},
 
 	methods: {	
-		displayError: function(err) { 
-
-			console.error(err);
+		displayError(err) { 
 			if(err.response) {
 				this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
 			}
@@ -116,7 +114,7 @@ export default {
 			}
 		},
 
-		usernameChanged: function(event) {
+		usernameChanged(event) {
 			if(!this.isValidUsername) {
 				this.usernameState = UsernameState.Invalid;
 				return;
@@ -131,7 +129,7 @@ export default {
 		},
 
 		isNewPasswordValid: (pw) => pw.length > 4,
-		passwordChanged: function(event) {
+		passwordChanged(event) {
 			const isPasswordValid = this.isNewPasswordValid(this.password);
 			if(!isPasswordValid) {
 				this.passwordState = PasswordState.Invalid;
@@ -143,7 +141,7 @@ export default {
 			.catch(this.displayError);
 		},
 
-		login: function(event) {
+		login(event) {
 			
 			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
 			loginFunction({

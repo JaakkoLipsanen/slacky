@@ -12,11 +12,13 @@ const forceHTTPS = (app) => {
 };
 
 exports.setup = (app) => {
+	app.set('port', process.env.PORT || 3000);
+	
 	app.isProduction = (app.get('env') === 'production');
 	if(app.isProduction) {
 		forceHTTPS(app);
 	}
-	
+
 	app.use(bodyParser.json()); // for parsing application/json
 	app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
