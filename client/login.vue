@@ -3,12 +3,12 @@
 		<div class="form-group">
 			<div>
 				<p class="error-message"> {{ errorMessage }} </p>
-				<canvas class="generated-profile-pic" :class="{ visible: isValidUsername }" ref="identicon" width="106" height="106"></canvas>
+				<canvas class="generated-profile-pic" :class="{ visible: isUsernameValid }" ref="identicon" width="106" height="106"></canvas>
 
 				<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" v-on:keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
-				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" :placeholder="passwordPlaceholderText" v-on:keyup="passwordChanged" v-on:keydown.enter="login" ><br>
+				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" placeholder="Enter password" v-on:keyup="passwordChanged" v-on:keydown.enter="login" ><br>
 						 	
-				<button class="enter-button" :class="{ visible: isValidUsername}" :disabled="isValidUsername && !isValidPassword" v-on:click="login">{{ enterButtonText }}</button>
+				<button class="enter-button" :class="{ visible: isUsernameValid}" :disabled="isUsernameValid && !isPasswordValid" v-on:click="login">{{ enterButtonText }}</button>
 			</div>
 		</div>
 	</div>
@@ -54,31 +54,29 @@ export default {
 	},
 
 	computed: {
-		isValidUsername() {		
-			return this.username.length >= 4 && this.username.length < 14 && (/^[a-zA-Z0-9-_]+$/).test(this.username); // alphanumerics and _ -
+		isUsernameValid() {	
+			const MinLength = 4;
+			const MaxLength = 13;	
+			return this.username.length >= MinLength && this.username.length <= MaxLength && (/^[a-zA-Z0-9-_]+$/).test(this.username); // alphanumerics and _ -
+		},
+
+		isPasswordValid() {
+			return (this.usernameState === UsernameState.Exists && this.passwordState === PasswordState.Matches) ||
+				   (this.usernameState === UsernameState.New) && this.isNewPasswordValid(this.password);
 		},
 
 		usernameInputClasses() {
 			return {
-				'invalid-input': !this.isValidUsername && this.username.length !== 0
+				// username input control is 'invalid' if the username itself is not valid AND the input box is not empty
+				'invalid-input': !this.isUsernameValid && this.username.length !== 0
 			};
-		},
-
-		isValidPassword() {
-			return (this.usernameState === UsernameState.Exists && this.passwordState === PasswordState.Matches) ||
-				   (this.usernameState === UsernameState.New) && (this.password.length === 0 || this.isNewPasswordValid(this.password));
 		},
 
 		passwordInputClasses() {
 			return {
-				'visible': this.isValidUsername,
-				'invalid-input': this.password.length != 0 && !this.isValidPassword
+				'invalid-input': this.password.length != 0 && !this.isPasswordValid,
+				'visible': this.isUsernameValid
 			};
-		},
-
-		passwordPlaceholderText() {
-			const passwordRequired = this.usernameState !== UsernameState.New;
-			return passwordRequired ? 'Enter password' : 'Enter password (optional)';
 		},
 
 		isEnterButtonDisabled() {
@@ -90,17 +88,7 @@ export default {
 		},
 		
 		enterButtonText() {
-			if(this.usernameState === UsernameState.Exists) {
-				return "Log in to Slacky";
-			}
-			else { // if(this.usernameState == UsernameState.New)
-				if(this.password.length === 0) {
-					return "Enter as Guest";
-				}
-				else {
-					return "Register to Slacky";
-				}
-			}
+			return this.usernameState === UsernameState.Exists ? "Log in to Slacky" : "Register to Slacky";
 		}
 	},
 
@@ -115,7 +103,7 @@ export default {
 		},
 
 		usernameChanged(event) {
-			if(!this.isValidUsername) {
+			if(!this.isUsernameValid) {
 				this.usernameState = UsernameState.Invalid;
 				return;
 			}
@@ -128,7 +116,7 @@ export default {
 			identicon.generate(this.$refs.identicon, this.username);
 		},
 
-		isNewPasswordValid: (pw) => pw.length > 4,
+		isNewPasswordValid: (pw) => pw.length >= 6,
 		passwordChanged(event) {
 			const isPasswordValid = this.isNewPasswordValid(this.password);
 			if(!isPasswordValid) {
@@ -137,7 +125,7 @@ export default {
 			}
 
 			api.validateCredentials({ username: this.username, password: this.password })
-			.then(valid => this.passwordState = valid ? PasswordState.Matches : PasswordState.Invalid )
+			.then(correct => this.passwordState = correct ? PasswordState.Matches : PasswordState.Invalid )
 			.catch(this.displayError);
 		},
 
@@ -186,10 +174,8 @@ $invalid-value-color: rgb(222, 32, 32);
 			box-shadow: none;
 			outline: none;
 
-			border-style: solid;
+			border: 2px solid rgb(192, 192, 172);
 			border-radius: 4px;
-			border-width: 2px;
-			border-color: rgb(192, 192, 172);
 			
 			/* padding-left causes the text inside the textarea to be padded */
 			padding-left: 4px;
