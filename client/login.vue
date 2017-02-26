@@ -14,9 +14,6 @@
 
 <script>
 
-import ChatArea from './components/chat-area.vue';
-import Sidebar from './components/sidebar.vue';
-
 import api from './api';
 import identicon from './misc/identicon';
 

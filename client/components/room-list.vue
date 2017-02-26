@@ -1,6 +1,7 @@
 <template>
 	<div class="room-list">
-		<h4 class="rooms-header">ROOMS</h4>
+		<h4 class="rooms-header">ROOMS</h4> 
+		<a class="new-room-button" @click="$popup.show('new-room-button')">+</a>
 
 		<div v-for="room in $store.state.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
 			<a class="room-entry" @click="changeRoom(room)"># {{ room.name.toLowerCase() }}</h1>
@@ -21,15 +22,41 @@ export default {
 
 <style lang="scss" scoped>
 
+$text-color: rgb(164, 164, 164);
+$selected-color: rgb(200, 200, 200);
+$active-color: rgb(224, 224, 224);
+
 .room-list {
-	margin-top: 32px;
+	margin-top: 42px;
 }
 
 .rooms-header {
 	font-size: 16px;
 	font-weight: 600;
-	color: rgb(164, 164, 164);
+	color: $text-color;
+	display: inline-block;
+	margin-top: 0px;
 	margin-bottom: 6px;
+}
+
+.new-room-button {
+	float: right;
+	margin-right: 16px;
+
+	font-size: 18px; 
+	font-weight: 600;
+	color: $text-color;
+
+	cursor: pointer;
+	text-decoration: none !important;
+
+	&:hover:not(.selected) {
+		color: $selected-color;
+	}
+
+	&:active:not(.selected) {
+		color: $active-color;
+	}
 }
 
 .room-entry-container {
@@ -51,13 +78,17 @@ export default {
 .room-entry {
 	font-size: 16px;
 	font-weight: 600;
-	color: rgb(172, 172, 172);
+	color: $text-color;
 	
 	cursor: pointer;
 	text-decoration: none;
 
 	&:hover:not(.selected) {
-		color: rgb(200, 200, 200);
+		color: $selected-color;
+	}
+
+	&:active:not(.selected) {
+		color: $active-color;
 	}
 }
 
