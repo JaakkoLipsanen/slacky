@@ -16,7 +16,7 @@ export default {
 		onEnterPressed(event) {
 			event.preventDefault(); // makes the element ignore default enter press behavior
 
-			const inputField = event.srcElement;
+			const inputField = event.target;
 			const text = inputField.value;
 			
 			if(text.trim().length > 0) {
