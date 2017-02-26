@@ -24,9 +24,7 @@ export default {
 </script>
 
 <style lang="scss">
-#chat-area {
-	margin: 0px;
-
+#chat-area { 
 	display: flex;
 	flex-direction: column;
 }
@@ -41,14 +39,12 @@ $input-height: 36px;
 $topbar-height: 64px;
 .topbar {
 	height: $topbar-height;
-	z-index: 1;
 }
 
 .message-list {
 	margin-bottom: $input-height;
-	flex: 1;
 
-	height: calc(100vh - #{$input-height + $topbar-height + $input-margin * 2});
+	height: calc(100vh - #{$topbar-height + $input-height + $input-margin * 2});
 	overflow: auto;	
 }
 </style>

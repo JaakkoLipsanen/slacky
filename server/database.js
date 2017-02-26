@@ -23,6 +23,10 @@ module.exports = {
 	},
 
 	createUser(username, password) {
+		const MinPasswordLength = 6;
+		if(password.length < MinPasswordLength) return null;
+		if(this.findUser(username)) return null;
+
 		const user = { username: username, password: password };
 		this.users.push(user);
 

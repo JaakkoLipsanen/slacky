@@ -5,7 +5,8 @@ import store from './stores/store';
 
 // defines this.$router in all vue components.. kinda hacky, maybe separate router into own class?
 Vue.mixin({ 
-	beforeCreate() {
+	beforeCreate() { 
+		// "this" is in this context the vue element being created
 		this.$router = this.$root.$children[0];
 	}
 });

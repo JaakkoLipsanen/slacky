@@ -1,8 +1,8 @@
 <template>
-	<div id='app' class='row'>
+	<div id='app'>
 		<template v-if="$store.state.isConnected">
-			<Sidebar class='col-fixed-280'></Sidebar>
-			<ChatArea class='col-md-12 col-offset-280'></ChatArea>
+			<Sidebar class='sidebar'></Sidebar>
+			<ChatArea class='chat-area'></ChatArea>
 		</template>
 	</div>
 </template>
@@ -42,16 +42,13 @@ export default {
 #app {
 	margin: 0px;
 	height: 100vh;
+	box-sizing: border-box;
 }
 
-/* apply to all elements */
-html * {
-	font-family: 'Lato';
-}
-
+$sidebar-width: 250px;
 $sidebar-padding: 15px;
-.col-fixed-280 {
-	width: 280px; 
+.sidebar {
+	width: $sidebar-width; 
 	position: fixed; 
 	height: 100%;
 
@@ -59,9 +56,23 @@ $sidebar-padding: 15px;
 	z-index: 1;
 }
 
-$chat-area-padding: $sidebar-padding * 2;
-.col-offset-280 {
-	padding-left: calc(280px + #{$chat-area-padding});
+$chat-area-padding: 30px;
+.chat-area {
+	width: 100%;
+	padding-right: 16px;
+	padding-left: calc(#{$sidebar-width + $chat-area-padding});
 }
+
+/* TODO: TEMPORARY!! disabled sidebar on narrow screens (like phones)..
+   TODO: Create hamburger menu button or something. */
+@media (max-width: 540px) {
+	.sidebar {
+		display: none;
+	}
+
+	.chat-area {
+		padding-left: $chat-area-padding;
+	}
+} 
 
 </style>

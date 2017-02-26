@@ -1,5 +1,5 @@
 <template>
-	<transition name="fade" mode="out-in" v-on:after-leave="afterTransitionLeave">
+	<transition name="fade" mode="out-in" @after-leave="afterTransitionLeave">
 		<component :is="currentView"></component>
 	</transition>
 </template>
@@ -20,11 +20,12 @@ export default {
 		return { 
 			currentView: '', 
 			pageParams: { }, 
-			_transitionLeaveCallback: null // mehhhh... read why below in redirect(..)
+			_transitionEndedCallback: null // mehhhh... read why below in redirect(..)
 		} 
 	},
 
 	beforeCreate() {
+		// if the client is not logged in, then display login screen
 		api.getCurrentUser()
 		.then(user => this.currentView = user ? 'App' : 'Login')
 		.catch(err => { console.error("Error on finding if user is logged in"); this.currentView = "Login"; });
@@ -32,8 +33,8 @@ export default {
 
 	methods: {
 		afterTransitionLeave() { 
-			if(this._transitionLeaveCallback) {
-				this._transitionLeaveCallback();
+			if(this._transitionEndedCallback) {
+				this._transitionEndedCallback();
 			}
 		},
 
@@ -44,10 +45,12 @@ export default {
 
 				// mehhhh... I don't know how this should be done. I cant do $(anim).one('after-leave', ...)
 				// because it doesn't seem to work with <transition> and whatnot :/
-				this._transitionLeaveCallback = () => {
+				this._transitionEndedCallback = () => {
 					resolve();
-					this._transitionLeaveCallback = null;
+					this._transitionEndedCallback = null;
 				};
+
+				// reject() is never called. Is it even possible for the transition to fail?
 			});
 		}
 	}
@@ -56,11 +59,17 @@ export default {
 
 <style lang='scss' scoped>
 
+$fade-length: 0.25s;
 .fade-enter-active, .fade-leave-active {
-	transition: opacity 0.25s ease;
+	transition: opacity $fade-length ease;
 }
 .fade-enter, .fade-leave-to, .component-fade-leave-active {
 	opacity: 0;
+}
+
+/* apply to all elements */
+html * {
+	font-family: 'Lato';
 }
 
 </style>

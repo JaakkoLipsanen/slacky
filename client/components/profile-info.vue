@@ -3,7 +3,7 @@
 		<img class="profile-pic" :src="getProfilePic($store.state.user)" />
 		<h4 class="profile-username">{{ $store.state.user.username }} </h4>
 
-		<a class="logout-button" v-on:click="logout">log out</a>
+		<a class="logout-button" @click="logout">log out</a>
 	</div>
 </template>
 
@@ -19,19 +19,17 @@ export default {
 		getProfilePic: user => profilePicCache.get(user),
 		logout() {
 
-			// TODO: clean this up (move to helper file or something?)
-			api.logout()
-			.then(() => {
+			const redirectToLoginPage = () => {
 				this.$router.redirect('Login')
-				.then(() => this.$store.commit('resetState')) // reset only after animation
+				.then(() => this.$store.commit('resetState')) // reset state only after page has faded out
 				.catch(err => console.log(`Error on logout: ${err}`));
-			})
-			.catch((err) => {
-				console.error(`Error on logout: ${err}`);
+			};
 
-				this.$router.redirect('Login')
-				.then(() => this.$store.commit('resetState')) // reset only after animation
-				.catch(err => console.log(`Error on logout: ${err}`));
+			api.logout()
+			.then(() => redirectToLoginPage())
+			.catch(err => {
+				console.error(`Error on logout: ${err}`);
+				redirectToLoginPage();
 			})
 		}
 	}

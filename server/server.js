@@ -16,8 +16,7 @@ server.listen(app.get('port'), () => {
 });
 
 
-// TODO: LOG OUT IS NOT SUPPORTED. IF USER LOGS OUT AND THEN LOGS IN, THERE'S
-// TODO!!! encapsulate this into it's own file. maybe message store or i dont know...
+// todo: move this into it's own file (especially if there's going to be more logic, like there probably will be)
 io.use((client, next) => {
 	// todo: authentication here?
 	next();

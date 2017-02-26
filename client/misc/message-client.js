@@ -32,6 +32,9 @@ export default class MessageClient {
 			console.log("Disconnecting even though already disconnected");
 		}
 
+		// todo: calling this ensures that one user can't be connected to server
+		// on multiple web sockets. however, this might not always be called (?)
+		// so the check should definitely be done server-side too
 		this.socket.disconnect();
 	}
 

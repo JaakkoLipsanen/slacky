@@ -1,26 +1,18 @@
 <template>
 	<div class="room-list">
 		<h4 class="rooms-header">ROOMS</h4>
-		<section v-for="room in rooms" class="room-entry-container" :class="{ selected: (room === currentRoom) }">
-			<a class="room-entry" v-on:click="changeRoom(room)"># {{ room.name.toLowerCase() }}</h1>
-		</section>
+
+		<div v-for="room in $store.state.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
+			<a class="room-entry" @click="changeRoom(room)"># {{ room.name.toLowerCase() }}</h1>
+		</div>
 	</div>
 </template>
 
 <script>
 
-import { mapState, mapMutations } from 'vuex';
+import { mapMutations } from 'vuex';
 export default {
 	name: 'room-list',
-
-	computed: {
-		rooms() {
-			return this.$store.state.rooms;
-		},
-
-		...mapState(['currentRoom']),
-	},
-
 	methods: {
 		...mapMutations(['changeRoom'])
 	}
@@ -41,14 +33,14 @@ export default {
 }
 
 .room-entry-container {
-	border-radius: 4px;
 	width: 95%;
 
 	padding: 2px;
-	padding-left: 4px;
+	padding-left: 4px;	
+	border-radius: 4px;
 
 	&.selected {
-		background-color: lighten(rgb(58, 58, 72), 15);
+		background-color: rgb(92, 92, 114);
 		.room-entry {
 			/* !important overrides the hover */
 			color: rgb(244, 244, 244) !important;
@@ -60,6 +52,7 @@ export default {
 	font-size: 16px;
 	font-weight: 600;
 	color: rgb(172, 172, 172);
+	
 	cursor: pointer;
 	text-decoration: none;
 

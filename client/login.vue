@@ -1,15 +1,13 @@
 <template>
 	<div id='login-page'>
 		<div class="form-group">
-			<div>
-				<p class="error-message"> {{ errorMessage }} </p>
-				<canvas class="generated-profile-pic" :class="{ visible: isUsernameValid }" ref="identicon" width="106" height="106"></canvas>
+			<p class="error-message"> {{ errorMessage }} </p>
+			<canvas class="generated-profile-pic" :class="{ visible: isUsernameValid }" ref="identicon" width="106" height="106"></canvas>
 
-				<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" v-on:keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
-				<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" placeholder="Enter password" v-on:keyup="passwordChanged" v-on:keydown.enter="login" ><br>
-						 	
-				<button class="enter-button" :class="{ visible: isUsernameValid}" :disabled="isUsernameValid && !isPasswordValid" v-on:click="login">{{ enterButtonText }}</button>
-			</div>
+			<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" @keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
+			<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" placeholder="Enter password" @keyup="passwordChanged" @keydown.enter="login" ><br>
+						
+			<button class="enter-button" :class="{ visible: isUsernameValid}" :disabled="isUsernameValid && !isPasswordValid" v-on:click="login">{{ enterButtonText }}</button>
 		</div>
 	</div>
 </template>
@@ -35,7 +33,6 @@ const PasswordState = {
 };
 
 export default {
-
 	name: 'login',
 	data() {
 		return {			
@@ -67,7 +64,7 @@ export default {
 
 		usernameInputClasses() {
 			return {
-				// username input control is 'invalid' if the username itself is not valid AND the input box is not empty
+				// invalid style only if the username itself is too short/long AND the input is not empty
 				'invalid-input': !this.isUsernameValid && this.username.length !== 0
 			};
 		},
@@ -93,13 +90,13 @@ export default {
 	},
 
 	methods: {	
-		displayError(err) { 
-			if(err.response) {
-				this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
-			}
-			else {
+		showError(err) { 
+			if(!err.response) {
 				this.errorMessage = err;
+				return;
 			}
+
+			this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
 		},
 
 		usernameChanged(event) {
@@ -110,7 +107,7 @@ export default {
 
 			api.getUser(this.username)
 			.then(user => this.usernameState = user ? UsernameState.Exists : UsernameState.New )
-			.catch(this.displayError);
+			.catch(this.showError);
 
 			// update the generated profile pic (which is based on username hash)
 			identicon.generate(this.$refs.identicon, this.username);
@@ -126,18 +123,17 @@ export default {
 
 			api.validateCredentials({ username: this.username, password: this.password })
 			.then(correct => this.passwordState = correct ? PasswordState.Matches : PasswordState.Invalid )
-			.catch(this.displayError);
+			.catch(this.showError);
 		},
 
-		login(event) {
-			
+		login(event) {		
 			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
 			loginFunction({
 				username: this.username,
 				password: this.password
 			})
 			.then(() => this.$router.redirect('App'))
-			.catch(this.displayError);
+			.catch(this.showError);
 		}
 	}
 }
@@ -151,35 +147,23 @@ $form-width: 300px;
 $input-height: 42px;
 $invalid-value-color: rgb(222, 32, 32);
 
-/* apply to all elements */
-* {
-	font-family: 'Lato';
-	font-size: 20px;
-}
-
 .form-group {
-	width: 100%;
-	height: 100vh;
+	width: $form-width;
+	max-width: calc(100vw - 16px);
+	padding-top: calc(50vh - 60px);
 	margin: auto;
 
-	div {
-		width: $form-width;
-		margin: auto;
-		padding-top: calc(50vh - 60px);
+	input {
+		width: 100%;
+		height: $input-height;
+		padding-left: 4px; /* padding-left causes the text inside the textarea to be padded */
 
-		input {
-			width: 100%;
-			height: $input-height;
+		box-shadow: none;
+		outline: none;
 
-			box-shadow: none;
-			outline: none;
-
-			border: 2px solid rgb(192, 192, 172);
-			border-radius: 4px;
-			
-			/* padding-left causes the text inside the textarea to be padded */
-			padding-left: 4px;
-		}
+		font-size: 20px;
+		border: 2px solid rgb(192, 192, 172);
+		border-radius: 4px;	
 	}
 }
 
@@ -213,7 +197,6 @@ $button-base-color: palegreen;
 
 	background: $button-base-color;
 	font-size: 24px;
-	color: rgb(72, 72, 72);
 	outline: none;
 	
 	border: none;
@@ -237,14 +220,23 @@ $button-base-color: palegreen;
 	position: absolute; 
 	top: calc(50% - 92px);  
 
+	font-size: 20px;
 	font-weight: 600; 
 	color: $invalid-value-color;
 }
 
 .generated-profile-pic {
 	position: absolute; 
-	left: calc(50% - 260px); 
+	left: calc(50% - #{$form-width / 2} - 4px); 
+	transform: translateX(-100%);
 	top: calc(50% - 68px);
+
+	/* if the screen is too narrow, then show the profile pic on top of the forms */
+	@media (max-width: 520px) {
+		left: calc(50%);
+		top: calc(50% - 168px);
+		transform: translate(-50%);
+	}
 }
 
 </style>

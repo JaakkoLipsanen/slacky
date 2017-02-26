@@ -1,5 +1,5 @@
 <template>
-	<textarea class="input-field" ref="inputField" v-on:keydown.enter="onEnter" placeholder="enter message" autofocus></textarea>
+	<textarea class="input-field" ref="input" @keydown.enter="onEnterPressed" placeholder="enter message" autofocus></textarea>
 </template>
 
 <script>
@@ -9,20 +9,21 @@ export default {
 	name: 'message-input',
 
 	mounted() {
-		this.forceAlwaysFocused(this.$refs.inputField);
+		this.forceAlwaysFocused(this.$refs.input);
 	},
 	
 	methods: {
-		onEnter(event) {
+		onEnterPressed(event) {
 			event.preventDefault(); // makes the element ignore default enter press behavior
 
 			const inputField = event.srcElement;
 			const text = inputField.value;
 			
 			if(text.trim().length > 0) {
-				this.sendMessage(text);
+				this.$store.dispatch('sendMessage', text);
 			}
 			
+			// clear the input field
 			inputField.value = "";
 		},
 
@@ -35,8 +36,6 @@ export default {
 				if(key == 9) e.preventDefault() 
 			};
 		},
-
-		...mapActions(['sendMessage'])
 	}
 }
 </script>
@@ -45,18 +44,16 @@ export default {
 
 .input-field {
 	width: 100%;
+	padding-left: 4px; /* padding-left causes the text inside the textarea to be padded */
 
+	border:  2px solid rgb(172, 172, 172);
 	border-radius: 4px;
-	border-width: 2px;
-	border-color: rgb(172, 172, 172);
+
 	resize: none;
     outline: none;
 	
 	font-size: 20px;
 	font-weight: 500;
-
-	/* padding-left causes the text inside the textarea to be padded */
-	padding-left: 4px;
 }
 
 </style>

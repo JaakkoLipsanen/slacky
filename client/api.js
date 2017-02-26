@@ -5,7 +5,7 @@ export default {
 		return new Promise((resolve, reject) => {		
 
 			axios.post('/api/auth/login', userCredentials)
-			.then((response) => resolve(response.data.user))
+			.then(response => resolve(response.data.user))
 			.catch(err => console.log(err));
 		});
 	},
@@ -14,7 +14,7 @@ export default {
 		return new Promise((resolve, reject) => {
 
 			axios.post('/api/auth/register', userCredentials)
-			.then((response) => resolve(response.data.user))
+			.then(response => resolve(response.data.user))
 			.catch(err => reject(err));
 		});
 	},
@@ -28,6 +28,16 @@ export default {
 		});
 	},
 
+	validateCredentials(userCredentials) {
+		return new Promise((resolve, reject) => {
+
+			axios.post('/api/auth/validate-credentials', userCredentials)
+			.then(response => resolve(response.data.valid))
+			.catch(err => reject(err));
+		});
+	},
+
+	// returns the logged in user
 	getCurrentUser() {
 		return new Promise((resolve, reject) => {
 
@@ -37,20 +47,11 @@ export default {
 		}); 
 	},
 
-	validateCredentials(userCredentials) {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/auth/validate-credentials', userCredentials)
-			.then(response => resolve(response.data.valid) )
-			.catch(err => reject(err));
-		});
-	},
-
 	getUser(username) {
 		return new Promise((resolve, reject) => {
 			
 			axios.get('/api/user/' + username)
-			.then((response) => resolve(response.data.user))
+			.then(response => resolve(response.data.user))
 			.catch(err => reject(err));
 		});
 	},

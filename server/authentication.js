@@ -18,7 +18,6 @@ const configPassport = (app) => {
 				return done(null, false, { message: 'Username and password combination is wrong' });
 			}
 
-			console.log("Auth: LocalStrategy: valid username and password");
 			delete user.password; // remove the user.password, since it's not required from now on
 			return done(null, user);
 		}
@@ -26,7 +25,6 @@ const configPassport = (app) => {
 
 	// Serialize user to cookie
 	passport.serializeUser((user, done) => {
-		console.log("Auth: user serialized");
 		done(null, user.username);
 	});
 
@@ -35,7 +33,6 @@ const configPassport = (app) => {
 		const user = app.get('db').findUser(username);
 		delete user.password;
 
-		console.log("Auth: user deserialized");
 		done(null, user);
 	});
 };
@@ -102,7 +99,7 @@ module.exports = {
 		req.login(createdUser, err => {
 			if (err) { return next(err); }		
 
-			console.log("Login succesful");
+			console.log("Registeration succesful");
 			return res.json({ user: createdUser });
 		});
 	},
