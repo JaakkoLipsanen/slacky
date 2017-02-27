@@ -7,12 +7,11 @@ import actions from './store.actions';
 Vue.use(Vuex);
 
 const state = {
-	rooms: [],
 	currentRoom: null,
 	user: null,
 
 	isConnected: false, // todo: message client has isConnected() method actually which could (and does) provide more accurate info, use it?
-	messageClient: null,
+	chatClient: null,
 };
 
 export default new Vuex.Store({

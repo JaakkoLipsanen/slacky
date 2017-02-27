@@ -1,11 +1,11 @@
 <template>
 	<div class="popup-background">
 		<div class="popup">
-			<input ref="roomName" type='text' placeholder="Enter name for the room" style="display: block">
+			<input ref="roomName" type='text' placeholder="Enter name for the room" style="display: block" autofocus>
 
 			<div class="button-container">
-				<button class="create-button" @click="$emit('created', $refs.roomName.value)", $>Create</button> 
-				<button class="cancel-button" @click="$emit('cancelled')">Cancel</button>
+				<button class="create-button" @click="$emit('success', { roomName: $refs.roomName.value })">Create</button> 
+				<button class="cancel-button" @click="$emit('cancel')">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -13,26 +13,14 @@
 
 <script>
 
-import MessageList from './message-list.vue';
-import MessageInput from './message-input.vue';
-import Topbar from './topbar.vue';
-
 export default {
-	name: 'chat-area',
-
+	name: 'new-room-popup',
 	components: {
-		MessageList,
-		MessageInput,
-		Topbar
-	}
+	},
 }
 </script>
 
 <style lang="scss">
-
-* {
-	font-size: 20px;
-}
 
 input {
 	width: 100%;
@@ -58,6 +46,7 @@ button {
 
 	border: none;
 	border-radius: 4px;
+	font-size: 20px;
 }
 
 $button-base-color: palegreen;
@@ -94,6 +83,7 @@ $button-base-color: palegreen;
 
 .popup-background {
 	position: fixed;
+	z-index: 1;
 	top: 0;
 	left: 0;
 	width: 100vw;

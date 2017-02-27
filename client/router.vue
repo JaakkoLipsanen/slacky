@@ -1,19 +1,35 @@
 <template>
-	<transition name="fade" mode="out-in" @after-leave="afterTransitionLeave">
-		<component :is="currentView"></component>
-	</transition>
+	<div>
+		<div> <!-- TODO: blur this div if popup is visible? -->
+			<transition name="fade" mode="out-in" @after-leave="afterTransitionLeave">
+				<component :is="currentView"></component>
+			</transition>
+		</div>
+
+		<Popup></Popup>
+	</div>
 </template>
 
 <script>
+
 import App from './app.vue'
 import Login from './login.vue'
+import Popup from './popup.vue'
 import api from './api';
+
+import Vue from 'vue';
+Vue.mixin({ // defines this.$router in all vue components..
+	computed: {
+		$router() { return this.$root._router; }
+	}
+});
 
 export default {
 	name: 'router',
 	components: {
 		App, 
-		Login
+		Login,
+		Popup
 	},
 
 	data() { 
@@ -25,6 +41,8 @@ export default {
 	},
 
 	beforeCreate() {
+		this.$root._router = this;
+
 		// if the client is not logged in, then display login screen
 		api.getCurrentUser()
 		.then(user => this.currentView = user ? 'App' : 'Login')

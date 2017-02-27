@@ -22,6 +22,10 @@ module.exports = {
 		return user ? Object.assign({}, user) : undefined;
 	},
 
+	findRoom(roomName) {	
+		return this.rooms.find(room => room.name === roomName);
+	},
+
 	createUser(username, password) {
 		const MinPasswordLength = 6;
 		if(password.length < MinPasswordLength) return null;
@@ -34,10 +38,10 @@ module.exports = {
 		return user;
 	},
 
-	createMessage(message) {
-		const room = this.rooms.find(room => room.name === message.room);
+	createMessage(roomName, message) {
+		const room = this.findRoom(roomName);
 		if(!room) {
-			console.error("Message received, but room was not found: " + message.room + ": " + message.text);
+			console.error("Message received, but room was not found: " + roomName + ": " + message.text);
 			return null;
 		}
 		
@@ -45,5 +49,16 @@ module.exports = {
 		room.messages.push(message);
 
 		return message;
+	},
+
+	createRoom(room) {
+		if(this.findRoom(room.name)) {
+			console.error("Trying to create a duplicate room");
+			return;
+		}
+
+		room = { name: room.name, messages: [] };
+		this.rooms.push(room);
+		return room;
 	}
 };

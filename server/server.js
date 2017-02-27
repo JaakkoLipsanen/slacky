@@ -23,10 +23,21 @@ io.use((client, next) => {
 }).on('connection', client => { // TODO: atm one client can have multiple connections here... limit to 1 per user
 	console.log('New user connected to slacky');
 
-	client.on('messages', data => {
-		const message = app.get('db').createMessage(data);
-		if(message) {
-			io.emit('messages', message);
+	client.on('messages', payload => {
+		if(payload.action === 'create') {
+			const message = app.get('db').createMessage(payload.room, payload.message);
+			if(message) {
+				io.emit('messages', { action: 'create', room: payload.room, message: message });
+			}
+		}
+	});
+
+	client.on('rooms', payload => {
+		if(payload.action === 'create') {
+			const room = app.get('db').createRoom(payload.room);
+			if(room) {
+				io.emit('rooms', { action: 'create', room: room });
+			}
 		}
 	});
 });

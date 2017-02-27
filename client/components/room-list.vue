@@ -1,9 +1,9 @@
 <template>
 	<div class="room-list">
 		<h4 class="rooms-header">ROOMS</h4> 
-		<a class="new-room-button" @click="$popup.show('new-room-button')">+</a>
+		<a class="new-room-button" @click="showPopup">+</a>
 
-		<div v-for="room in $store.state.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
+		<div v-for="room in $store.state.chatClient.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
 			<a class="room-entry" @click="changeRoom(room)"># {{ room.name.toLowerCase() }}</h1>
 		</div>
 	</div>
@@ -15,7 +15,12 @@ import { mapMutations } from 'vuex';
 export default {
 	name: 'room-list',
 	methods: {
-		...mapMutations(['changeRoom'])
+		...mapMutations(['changeRoom']),
+
+		showPopup() {
+			this.$popup.show('new-room-popup')
+			.then(payload => this.$store.dispatch('createNewRoom', payload.roomName));
+		}
 	}
 }
 </script>

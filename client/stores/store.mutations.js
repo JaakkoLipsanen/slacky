@@ -14,26 +14,23 @@ export default {
 	},
 
 	initializeState(state, payload) {
-		state.user = payload.initialData.user;
-		state.rooms = payload.initialData.rooms;
-
-		if(state.rooms.length > 0) {
-			state.currentRoom = state.rooms[0];
-		}
-
-		state.messageClient = payload.messageClient;
+		state.user = payload.user;
+		state.chatClient = payload.chatClient;
 		state.isConnected = true;
+
+		if(state.chatClient.rooms.length > 0) {
+			state.currentRoom = state.chatClient.rooms[0];
+		}
 	},
 
 	resetState(state) {
-		state.rooms = [];
 		state.currentRoom = null;
 		state.user = null;
 		state.isConnected = false;
 
-		if(state.messageClient != null) {
-			state.messageClient.disconnect();
-			state.messageClient = null;
+		if(state.chatClient != null) {
+			state.chatClient.disconnect();
+			state.chatClient = null;
 		}
 	}
 };

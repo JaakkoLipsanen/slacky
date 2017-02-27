@@ -9,7 +9,7 @@ export default {
 	name: 'message-input',
 
 	mounted() {
-		this.forceAlwaysFocused(this.$refs.input);
+	//	this.forceAlwaysFocused(this.$refs.input);
 	},
 	
 	methods: {
