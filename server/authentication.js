@@ -11,15 +11,17 @@ const configPassport = (app) => {
 	// checks whether username and password are valid
 	passport.use(new LocalStrategy(
 		(username, password, done) => {
-			const user = app.get('db').findUser(username);
- 
-			if (!user || user.password !== password) {
-				console.log("Auth: LocalStrategy: user not found or wrong password");
-				return done(null, false, { message: 'Username and password combination is wrong' });
-			}
+			app.get('db').findUser(username)
+			.then(user => {
+				if (!user || user.password !== password) {
+					console.log("Auth: LocalStrategy: user not found or wrong password");
+					return done(null, false, { message: 'Username and password combination is wrong' });
+				}
 
-			delete user.password; // remove the user.password, since it's not required from now on
-			return done(null, user);
+				delete user.password; // remove the user.password, since it's not required from now on
+				return done(null, user);
+			})
+			.catch(err => done(err));
 		}
 	));
 
@@ -30,10 +32,12 @@ const configPassport = (app) => {
 
 	// Deserialize user from cookie
 	passport.deserializeUser((username, done) => {
-		const user = app.get('db').findUser(username);
-		delete user.password;
-
-		done(null, user);
+		app.get('db').findUser(username)
+		.then(user => {
+			delete user.password;
+			done(null, user);
+		})
+		.catch(err => { console.error("Passport.deserializer error: " + err); done(err); });
 	});
 };
 
@@ -83,25 +87,29 @@ module.exports = {
 
 	register(req, res, next) {
 		const db = req.app.get('db');
-		const user = db.findUser(req.body.username);
-		if(user) {
-			// todo: should redirect to login function above?
-			res.status(401).json({ error: "Username already taken"});
-			return;
-		}
+		
+		db.findUser(req.body.username)
+		.then(user => {
+			if(user) {
+				// todo: should redirect to login function above?
+				res.status(401).json({ error: "Username already taken"});
+				return;
+			}
 
-		const createdUser = db.createUser(req.body.username, req.body.password);
-		if(!createdUser) {
-			res.status(500).json({ error: "Error creating a new user" });
-			return;
-		}
+			const createdUser = db.createUser(req.body.username, req.body.password);
+			if(!createdUser) {
+				res.status(500).json({ error: "Error creating a new user" });
+				return;
+			}
 
-		req.login(createdUser, err => {
-			if (err) { return next(err); }		
+			req.login(createdUser, err => {
+				if (err) { return next(err); }		
 
-			console.log("Registeration succesful");
-			return res.json({ user: createdUser });
-		});
+				console.log("Registeration succesful");
+				return res.json({ user: createdUser });
+			});
+		})
+		.catch(err => { console.error("Passport.register error: " + err); next(err); });
 	},
 
 	logout(req, res, next) {

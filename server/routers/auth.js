@@ -5,10 +5,12 @@ const authentication = require('../authentication');
 const authRouter = new express.Router();
 authRouter.post('/validate-credentials', (req, res) => { // asks whether credientials are correct, but does not login
 
-	const user = req.app.get('db').findUser(req.body.username);
-	res.json({ 
-		valid : Boolean(user) && user.password === req.body.password  
-	});
+	req.app.get('db').findUser(req.body.username)
+	.then(user => {
+		res.json({ valid : Boolean(user) && user.password === req.body.password });
+	})
+	.catch(err => res.status(500).send());
+	
 });
 
 authRouter.post('/register', authentication.register);
