@@ -10,4 +10,4 @@
 - [**PostgreSQL**](https://www.postgresql.org/) for database
 - [**sequelize**](sequelizejs.com) for database ORM.
 
-*Version with persistent Postegre database is not yet in ready :) !*
+*Version with persistent Postegre database is not yet live :) !*
