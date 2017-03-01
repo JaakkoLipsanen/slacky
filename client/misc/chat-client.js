@@ -1,12 +1,13 @@
 import api from '../api';
 
+// TODO: ChatStore? as a child store to the main one?
 export default class ChatClient {
 
 	constructor(socket, data) {
 		this.socket = socket;
 		this.isConnected = true;
 
-		this.rooms = data.rooms;
+		this.rooms = data.rooms; // TODO: move this to store somehow :/ ?
 	//  this.users = [] ?
 
 		socket.on('messages', payload => {
@@ -20,7 +21,7 @@ export default class ChatClient {
 				return;
 			}
 
-			room.messages.push(payload.message);
+			room.messages.push({ text: payload.message, sender: payload.sender, timestamp: payload.timestamp });
 		});
 
 		socket.on('rooms', payload => {
@@ -36,7 +37,7 @@ export default class ChatClient {
 			return;
 		}
 
-		this.socket.emit('messages', { action: 'create', room: payload.room, message: payload.message });
+		this.socket.emit('messages', { action: 'create', room: payload.room, sender: payload.sender, message: payload.message });
 	}
 
 	createRoom(roomName) {

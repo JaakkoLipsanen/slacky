@@ -14,6 +14,7 @@ apiRouter.post('/connection', authentication.requireAuthenticated, (req, res) =>
 	.then(rooms => {
 		console.log(rooms);
 		res.json({ user: req.user, rooms: rooms });
+		return null;
 	})
 	.catch(err => res.status(500).send(err));
 });

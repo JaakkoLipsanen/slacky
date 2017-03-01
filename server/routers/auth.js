@@ -5,7 +5,7 @@ const authentication = require('../authentication');
 const authRouter = new express.Router();
 authRouter.post('/validate-credentials', (req, res) => { // asks whether credientials are correct, but does not login
 
-	req.app.get('db').findUser(req.body.username)
+	req.app.get('db').findUser(req.body.username, true)
 	.then(user => {
 		res.json({ valid : Boolean(user) && user.password === req.body.password });
 	})

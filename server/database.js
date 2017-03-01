@@ -1,116 +1,104 @@
 const Sequelize = require('sequelize');
-const Pool = pg.Pool;
-
-/*
-const users = [
-	{ username: 'flai', password: 'konala' },
-	{ username: 'puupaa', password: 'muumipeikko'},
-];
-
-const rooms = [
-	{ name: "general", messages: [] },
-	{ name: "coding", messages: [] }
-]; */
-
-const config = {
+const sequelize = new Sequelize('slacky', 'jaakko', 'konala', {
 	host: 'localhost',
-	user: 'jaakko',
-	password: 'konala',
-	database: 'slacky'
-};
+	dialect: 'postgres', // use one of these
 
-const pool = new Pool(config);
-const db = {
-
-	query(text, values) {
-		return new Promise((resolve, reject) => {
-			pool.query(text, values, (err, result) => {
-				if(err) {
-					reject(err);
-					return;
-				}
-
-				resolve(result);
-			});
-    	});
+	pool: {
+		max: 5,
+		min: 0,
+		idle: 10000
 	},
-};
+});
 
-const User = {
-	find(username) {
-		return new Promise((resolve, reject) => {
-			db.query('SELECT * FROM Users WHERE username = $1', [username])
-			.then(response => { console.log(response); resolve(response.rows[0]) })
-			.catch(err => reject(err));
-		});
-	},
+sequelize.authenticate()
+.then(function(err) {
+	console.log('Connection has been established successfully.');
+})
+.catch(function (err) {
+	console.log('Unable to connect to the database:', err);
+});
 
-	create(username, password) {
-		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO Users (username, password) VALUES ($1, $2);', [username, password])
-			.then(response => resolve(response.rows.first))
-			.catch(err => reject(err));
-		});
-	}
-};
+const User = sequelize.define('user', {
+	username: { type: Sequelize.STRING },
+	password: { type: Sequelize.STRING },
+	profilePic: { type: Sequelize.STRING }, // url
+});
 
-const Room = {
-	find(roomName) {
-		return new Promise((resolve, reject) => {
-			this.query('SELECT * FROM Rooms WHERE name = $1', [roomName])
-			.then(response => resolve(response.rows[0]))
-			.catch(err => reject(err));
-		});
-	},
-	
-	create(roomName) {
-		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO Rooms (name) VALUES ($1);', [roomName])
-			.then(response => resolve(response.rows.first))
-			.catch(err => reject(err));
-		});
+const Room = sequelize.define('rooms', {
+	name: { type: Sequelize.STRING }
+});
+
+const Message = sequelize.define('messages', {
+	text: { type: Sequelize.STRING },
+	timestamp: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+
+
+	/* sender_id: {
+		type: Sequelize.INTEGER,
+		references: {
+			model: "Users",
+			key: "id"
+		}
 	},
 
-	all() {
-		return new Promise((resolve, reject) => {
-			db.query('SELECT * FROM Rooms r, Messages m WHERE m.room_id = m.id')
-			.then(response => {
-				const rooms = response.rows;
-				resolve(response.rows))
-			.catch(err => reject(err));
-		});
-	}
-};
+	room_id: {
+		type: Sequelize.INTEGER,
+		references: {
+			model: "Rooms",
+			key: "id"
+		}
+	}  */
+});
 
-const Message = {
-	/* find(roomName) {
-		return new Promise((resolve, reject) => {
-			this.query('SELECT * FROM Rooms WHERE name = $1', [roomName])
-			.then(response => resolve(response.rows.first))
-			.catch(err => reject(err));
-		});
-	} */
-	
-	create(roomId, senderId, text) {
-		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO Messages (room_id, sender_id, text) VALUES ($1, $2, $3);', [roomId, senderId, text])
-			.then(response => resolve(response.rows.first))
-			.catch(err => reject(err));
-		});
-	}
-};
+
+// force: true will drop the table if it already exists
+User.sync({force: true}).then(() => {
+	// Table created
+	User.create({
+		username: 'flai',
+		password: 'konala'
+	});
+
+	User.create({
+		username: 'puupaa',
+		password: 'muumipeikko'
+	});
+});
+
+
+Room.hasMany(Message);
+// force: true will drop the table if it already exists
+Room.sync({force: true}).then(() => {
+	// Table created
+	Room.create({
+		name: 'general',
+	});
+
+	Room.create({
+		name: 'coding',
+	});
+
+	// Room.hasMany(Message);
+	Message.belongsTo(Room);
+	Message.belongsTo(User); 
+	Message.sync({force: true});
+});
+
 
 module.exports = {
 	getRooms() {
 		return new Promise((resolve, reject) => {
-			Room.all()
-			.then(rooms => resolve(rooms))
-			.catch(err => reject(err));
+			Room.findAll({ include: [Message] })
+			.then(rooms => { resolve(rooms); return null; })
+			.catch(reject);
 		});
 	},
 
-	findUser(username) {
-		return User.find(username);
+	findUser(username, password) {
+		return User.findOne({
+			where: { username: username },
+			attributes: ['username', 'profilePic'].concat(password ? ['password'] : [])
+		});
 	},
 
 	createUser(username, password) {
@@ -123,55 +111,54 @@ module.exports = {
 				return;
 			}
 			
-			User.find(username)
+			return User.findOne({where: { username: username }})
 			.then(user => {
 				if(user) {
 					reject({ type: 'duplicate', message: 'User with same username exists' });
-					return;
+					return null;
 				}
 
-				User.create(username, password)
-				.then(() => resolve())
+				return user;
+			})
+			.then(user =>
+				User.create( { username: username, password: password})
+				.then(user => resolve(user))
 				.catch(err => reject(err));
 			})
 			.catch(err => reject(err));
 		});
 	},
 
-	createMessage(roomName, message) {
-		Room.find(roomName)
-		.then(room => {
-			if(!room) {
-				reject({ type: 'arguments', message: "Trying to create message but room doesn't exist" });
-				return;
-			}
+	createMessage(roomName, sender, message) {
+		return new Promise((resolve, reject) => {
+			Room.findOne({ where: { name: roomName }})
+			.then(room => {
+				if(!room) {
+					reject({ type: 'arguments', message: "Trying to create message but room doesn't exist" });
+					return;
+				}
 
-			Message.create
-		})
-		const room = this.findRoom(roomName);
-		if(!room) {
-			console.error("Message received, but room was not found: " + roomName + ": " + message.text);
-			return null;
-		}
-		
-		message.timestamp = new Date();
-		room.messages.push(message);
-
-		return message;
+				Message.create({ room_id: room.id, sender_id: sender.id, text: message })
+				.then(message => resolve(message))
+				.catch(err => reject(err));
+			})
+		});
 	},
 
-	createRoom(room) {
-		Room.find(room.name)
-		.then(room => {
-			if(room) {
-				reject({ type: 'duplicate', message: "Trying to create duplicate room" });
-				return;
-			}
+	createRoom(room) {	
+		return new Promise((resolve, reject) => {
+			Room.findOne({ where: { name: room.name } })
+			.then(room => {
+				if(room) {
+					reject({ type: 'duplicate', message: "Trying to create duplicate room" });
+					return;
+				}
 
-			Room.create(room.name)
-			.then(() => resolve())
+				Room.create({ name: room.name })
+				.then(room => resolve(room))
+				.catch(err => reject(err));
+			})
 			.catch(err => reject(err));
-		})
-		.catch(err => reject(err));
+		});
 	}
 };

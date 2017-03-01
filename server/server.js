@@ -25,10 +25,12 @@ io.use((client, next) => {
 
 	client.on('messages', payload => {
 		if(payload.action === 'create') {
-			const message = app.get('db').createMessage(payload.room, payload.message);
-			if(message) {
-				io.emit('messages', { action: 'create', room: payload.room, message: message });
-			}
+			app.get('db').createMessage(payload.room, payload.sender, payload.message)
+			.then(message => {			
+				if(message) {
+					io.emit('messages', { action: 'create', room: payload.room, sender: payload.sender, timestamp: message.timestamp, message: payload.message }); // TODO: don't use payload. but message.
+				}
+			});
 		}
 	});
 

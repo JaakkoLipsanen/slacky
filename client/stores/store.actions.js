@@ -5,7 +5,7 @@ export default {
 		return new Promise((resolve, reject) => {
 
 			// todo: the sender should not be sent, it should be determined on the server!
-			context.state.chatClient.sendMessage({ room: context.state.currentRoom.name, message: { sender: context.state.user, text: message } } );
+			context.state.chatClient.sendMessage({ room: context.state.currentRoom.name, sender: context.state.user, message: message });
 			resolve(); // TODO!!! never reject atm. I dont know.. should it be checked whether it's actually sent or something?
 		});
 	},

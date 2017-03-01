@@ -30,7 +30,7 @@ export default {
 		getProfilePic: (user) => profilePicCache.get(user),
 		formatTime(date) {
 			const pad = (num) => (num < 10 ? "0" : "") + num;
-			
+			console.log(date);
 			date = new Date(date);
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
 		}

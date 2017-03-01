@@ -11,7 +11,7 @@ const configPassport = (app) => {
 	// checks whether username and password are valid
 	passport.use(new LocalStrategy(
 		(username, password, done) => {
-			app.get('db').findUser(username)
+			app.get('db').findUser(username, true)
 			.then(user => {
 				if (!user || user.password !== password) {
 					console.log("Auth: LocalStrategy: user not found or wrong password");
@@ -33,10 +33,7 @@ const configPassport = (app) => {
 	// Deserialize user from cookie
 	passport.deserializeUser((username, done) => {
 		app.get('db').findUser(username)
-		.then(user => {
-			delete user.password;
-			done(null, user);
-		})
+		.then(user => done(null, user))
 		.catch(err => { console.error("Passport.deserializer error: " + err); done(err); });
 	});
 };
@@ -87,7 +84,7 @@ module.exports = {
 
 	register(req, res, next) {
 		const db = req.app.get('db');
-		
+
 		db.findUser(req.body.username)
 		.then(user => {
 			if(user) {
