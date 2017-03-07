@@ -10,26 +10,8 @@ export default class ChatClient {
 		this.rooms = data.rooms; // TODO: move this to store somehow :/ ?
 	//  this.users = [] ?
 
-		socket.on('messages', payload => {
-			if(payload.action !== 'create') {
-				return;
-			}
-
-			const room = this.rooms.find(room => room.name === payload.room);
-			if(!room) {
-				console.error("Message received, but room was not found: " + payload.room + ": " + payload.message);
-				return;
-			}
-
-			room.messages.push({ text: payload.message, sender: payload.sender, timestamp: payload.timestamp });
-		});
-
-		socket.on('rooms', payload => {
-			if(payload.action === 'create') {
-				this.rooms.push(payload.room);
-			}
-		//  else if(payload.action === 'delete') // todo
-		});
+		socket.on('messages', payload => this._onMessageReceived(payload));
+		socket.on('rooms', payload => this._onRoomMessageReceived(payload));
 	}
 
 	sendMessage(payload) {
@@ -70,6 +52,28 @@ export default class ChatClient {
 		}
 
 		return true;
+	}
+
+	_onMessageReceived(payload) {
+		if(payload.action !== 'create') {
+			return;
+		}
+
+		console.log(this);
+		const room = this.rooms.find(room => room.name === payload.room);
+		if(!room) {
+			console.error("Message received, but room was not found", payload.room, payload.message);
+			return;
+		}
+
+		room.messages.push({ text: payload.message, sender: payload.sender, timestamp: payload.timestamp });
+	}
+
+	_onRoomMessageReceived(payload) {
+		if(payload.action === 'create') {
+			this.rooms.push(payload.room);
+		}
+	//  else if(payload.action === 'delete') // todo?
 	}
 
 	static openConnection() {

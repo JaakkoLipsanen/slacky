@@ -15,8 +15,6 @@
 
 export default {
 	name: 'new-room-popup',
-	components: {
-	},
 }
 </script>
 

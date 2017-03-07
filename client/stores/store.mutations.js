@@ -6,7 +6,7 @@ export default {
 	addReceivedMessage(state, payload) {
 		const room = state.rooms.find(room => room.name === payload.room);
 		if(!room) {
-			console.error("Message received, but room was not found: " + payload.room + ": " + payload.message);
+			console.error("Message received, but room was not found:", + payload);
 			return;
 		}
 

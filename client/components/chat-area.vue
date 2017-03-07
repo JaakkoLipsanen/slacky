@@ -29,11 +29,11 @@ export default {
 	flex-direction: column;
 }
 
-$input-margin: 8px;
-$input-height: 36px;
+$input-field-margin: 8px;
+$input-field-height: 36px;
 .message-input {
-	margin-top: $input-margin;
-	height: $input-height;
+	margin-top: $input-field-margin;
+	height: $input-field-height;
 }
 
 $topbar-height: 64px;
@@ -42,9 +42,9 @@ $topbar-height: 64px;
 }
 
 .message-list {
-	margin-bottom: $input-height;
+	margin-bottom: $input-field-height;
 
-	height: calc(100vh - #{$topbar-height + $input-height + $input-margin * 2});
+	height: calc(100vh - #{$topbar-height + $input-field-height + $input-field-margin * 2});
 	overflow: auto;	
 }
 </style>

@@ -49,7 +49,7 @@ export default {
 
 	getUser(username) {
 		return new Promise((resolve, reject) => {
-			
+
 			axios.get('/api/user/' + username)
 			.then(response => resolve(response.data.user))
 			.catch(err => reject(err));

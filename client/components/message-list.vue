@@ -30,8 +30,8 @@ export default {
 		getProfilePic: (user) => profilePicCache.get(user),
 		formatTime(date) {
 			const pad = (num) => (num < 10 ? "0" : "") + num;
-			console.log(date);
-			date = new Date(date);
+
+			date = date.getHours ? date : new Date(date); // if date is not Date object, then convert it
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
 		}
 	}

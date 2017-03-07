@@ -11,6 +11,7 @@ const configPassport = (app) => {
 	// checks whether username and password are valid
 	passport.use(new LocalStrategy(
 		(username, password, done) => {
+			
 			app.get('db').findUser(username, true)
 			.then(user => {
 				if (!user || user.password !== password) {
@@ -34,7 +35,7 @@ const configPassport = (app) => {
 	passport.deserializeUser((username, done) => {
 		app.get('db').findUser(username)
 		.then(user => done(null, user))
-		.catch(err => { console.error("Passport.deserializer error: ", err); done(err); });
+		.catch(err => { console.error("Passport.deserializer error", err); done(err); });
 	});
 };
 
@@ -108,7 +109,7 @@ module.exports = {
 				});
 			});
 		})
-		.catch(err => { console.error("Passport.register error: " + err); next(err); });
+		.catch(err => { console.error("Passport.register error", err); next(err); });
 	},
 
 	logout(req, res, next) {

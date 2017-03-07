@@ -19,7 +19,7 @@ export default {
 			const inputField = event.target;
 			const text = inputField.value;
 			
-			if(text.trim().length > 0) {
+			if(text.trim().length > 0) { // if not empty message
 				this.$store.dispatch('sendMessage', text);
 			}
 			
@@ -29,7 +29,7 @@ export default {
 
 		forceAlwaysFocused(textarea) {
 			textarea.focus();
-			textarea.onblur = () => setTimeout(() => textarea.focus());
+			textarea.onblur = () => setTimeout(() => textarea.focus()); // onblur == "on unfocus"
 			textarea.onkeydown = e => { 
 				// prevents default tab behavior (tab == 9)
 				const key = e.which || e.keyCode;

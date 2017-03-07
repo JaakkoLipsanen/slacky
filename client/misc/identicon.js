@@ -24,7 +24,7 @@ const generate = (element, string) => {
 const generateToDataURL = (width, height, string) => {	
 	const canvas = $("<canvas></canvas>").attr("width", width).attr("height", height).get(0);
 	if(!generate(canvas, string)) {
-		console.error("Error generating identicon for " + string);
+		console.error("Error generating identicon for ", string);
 		return "data:,";
 	}
 
