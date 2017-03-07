@@ -25,7 +25,7 @@ const configPassport = (app) => {
 		}
 	));
 
-	// Serialize user to cookie
+	// Serialize user to a cookie
 	passport.serializeUser((user, done) => {
 		done(null, user.username);
 	});
@@ -34,7 +34,7 @@ const configPassport = (app) => {
 	passport.deserializeUser((username, done) => {
 		app.get('db').findUser(username)
 		.then(user => done(null, user))
-		.catch(err => { console.error("Passport.deserializer error: " + err); done(err); });
+		.catch(err => { console.error("Passport.deserializer error: ", err); done(err); });
 	});
 };
 
@@ -93,17 +93,19 @@ module.exports = {
 				return;
 			}
 
-			const createdUser = db.createUser(req.body.username, req.body.password);
-			if(!createdUser) {
-				res.status(500).json({ error: "Error creating a new user" });
-				return;
-			}
+			db.createUser(req.body.username, req.body.password)
+			.then(createdUser => {
+				if(!createdUser) {
+					res.status(500).json({ error: "Error creating a new user" });
+					return;
+				}
 
-			req.login(createdUser, err => {
-				if (err) { return next(err); }		
+				req.login(createdUser, err => {
+					if (err) { return next(err); }		
 
-				console.log("Registeration succesful");
-				return res.json({ user: createdUser });
+					console.log("Registeration succesful");
+					return res.json({ user: createdUser });
+				});
 			});
 		})
 		.catch(err => { console.error("Passport.register error: " + err); next(err); });

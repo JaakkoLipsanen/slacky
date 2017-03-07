@@ -12,11 +12,10 @@ apiRouter.post('/connection', authentication.requireAuthenticated, (req, res) =>
 
 	req.app.get('db').getRooms()
 	.then(rooms => {
-		console.log(rooms);
 		res.json({ user: req.user, rooms: rooms });
 		return null;
 	})
-	.catch(err => res.status(500).send(err));
+	.catch(err => { console.error("Error on establishing connection", err); res.status(500).send(err); });
 });
 
 const authRouter = require('./auth.js');

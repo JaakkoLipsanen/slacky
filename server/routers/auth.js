@@ -8,6 +8,7 @@ authRouter.post('/validate-credentials', (req, res) => { // asks whether credien
 	req.app.get('db').findUser(req.body.username, true)
 	.then(user => {
 		res.json({ valid : Boolean(user) && user.password === req.body.password });
+		return null;
 	})
 	.catch(err => res.status(500).send());
 	

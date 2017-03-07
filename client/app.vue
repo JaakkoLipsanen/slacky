@@ -32,7 +32,7 @@ export default {
 				return;
 			}	
 			
-			console.error("Unknown error in establishing connection: " + err);
+			console.error("Unknown error in establishing connection", err);
 		});
 	},
 }

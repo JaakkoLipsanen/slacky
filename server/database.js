@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('slacky', 'jaakko', 'konala', {
+const sequelize = new Sequelize('slacky', 'flai', 'konala', {
 	host: 'localhost',
-	dialect: 'postgres', // use one of these
+	dialect: 'postgres',
+	logging: false,
 
 	pool: {
 		max: 5,
@@ -10,6 +11,7 @@ const sequelize = new Sequelize('slacky', 'jaakko', 'konala', {
 	},
 });
 
+// this is not really needed
 sequelize.authenticate()
 .then(function(err) {
 	console.log('Connection has been established successfully.');
@@ -31,73 +33,44 @@ const Room = sequelize.define('rooms', {
 const Message = sequelize.define('messages', {
 	text: { type: Sequelize.STRING },
 	timestamp: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-
-
-	/* sender_id: {
-		type: Sequelize.INTEGER,
-		references: {
-			model: "Users",
-			key: "id"
-		}
-	},
-
-	room_id: {
-		type: Sequelize.INTEGER,
-		references: {
-			model: "Rooms",
-			key: "id"
-		}
-	}  */
 });
-
-
-// force: true will drop the table if it already exists
-User.sync({force: true}).then(() => {
-	// Table created
-	User.create({
-		username: 'flai',
-		password: 'konala'
-	});
-
-	User.create({
-		username: 'puupaa',
-		password: 'muumipeikko'
-	});
-});
-
 
 Room.hasMany(Message);
+Message.belongsTo(User, { as: 'sender' });
+
 // force: true will drop the table if it already exists
-Room.sync({force: true}).then(() => {
-	// Table created
-	Room.create({
-		name: 'general',
-	});
-
-	Room.create({
-		name: 'coding',
-	});
-
-	// Room.hasMany(Message);
-	Message.belongsTo(Room);
-	Message.belongsTo(User); 
-	Message.sync({force: true});
+User.sync({force: false}).then(() => {
+	/* */
 });
 
+// force: true will drop the table if it already exists
+Room.sync({force: false}).then(() => {
+/*	Room.create({ name: 'general' });
+	Room.create({ name: 'coding' }); */
+	
+	Message.sync({force: false});
+});
 
 module.exports = {
 	getRooms() {
 		return new Promise((resolve, reject) => {
-			Room.findAll({ include: [Message] })
+			Room.findAll({ 
+				include: [
+				{ model: Message, include: [
+					{ model: User, as: 'sender' }] }] })
 			.then(rooms => { resolve(rooms); return null; })
 			.catch(reject);
 		});
 	},
 
-	findUser(username, password) {
-		return User.findOne({
-			where: { username: username },
-			attributes: ['username', 'profilePic'].concat(password ? ['password'] : [])
+	findUser(username, password) {		
+		return new Promise((resolve, reject) => {
+			User.findOne({
+				where: { username: username },
+				attributes: ['username', 'profilePic'].concat(password ? ['password'] : [])
+			})
+			.then(user => { resolve(user); return null; })
+			.catch(err => reject(err));
 		});
 	},
 
@@ -111,7 +84,7 @@ module.exports = {
 				return;
 			}
 			
-			return User.findOne({where: { username: username }})
+			User.findOne({where: { username: username }})
 			.then(user => {
 				if(user) {
 					reject({ type: 'duplicate', message: 'User with same username exists' });
@@ -120,11 +93,14 @@ module.exports = {
 
 				return user;
 			})
-			.then(user =>
+			.then(user => { 
 				User.create( { username: username, password: password})
-				.then(user => resolve(user))
+				.then(created => {
+					resolve(created);
+					return created;
+				})
 				.catch(err => reject(err));
-			})
+			 })
 			.catch(err => reject(err));
 		});
 	},
@@ -138,24 +114,32 @@ module.exports = {
 					return;
 				}
 
-				Message.create({ room_id: room.id, sender_id: sender.id, text: message })
-				.then(message => resolve(message))
-				.catch(err => reject(err));
+				User.findOne({ where: { username: sender.username }})
+				.then(user => {
+					if(!user) {
+						reject({ type: 'arguments', message: "Trying to create message but user doesn't exist" });
+						return;
+					}
+
+					Message.create({ roomId: room.dataValues.id, senderId: user.dataValues.id, text: message })
+					.then(message => resolve(message))
+					.catch(err => reject(err));
+				});
 			})
 		});
 	},
 
-	createRoom(room) {	
+	createRoom(roomName) {	
 		return new Promise((resolve, reject) => {
-			Room.findOne({ where: { name: room.name } })
+			Room.findOne({ where: { name: roomName } })
 			.then(room => {
 				if(room) {
 					reject({ type: 'duplicate', message: "Trying to create duplicate room" });
 					return;
 				}
 
-				Room.create({ name: room.name })
-				.then(room => resolve(room))
+				Room.create({ name: roomName})
+				.then(created => { created.dataValues.messages = []; resolve(created); return created; })
 				.catch(err => reject(err));
 			})
 			.catch(err => reject(err));

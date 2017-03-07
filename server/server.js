@@ -21,8 +21,6 @@ io.use((client, next) => {
 	// todo: authentication here?
 	next();
 }).on('connection', client => { // TODO: atm one client can have multiple connections here... limit to 1 per user
-	console.log('New user connected to slacky');
-
 	client.on('messages', payload => {
 		if(payload.action === 'create') {
 			app.get('db').createMessage(payload.room, payload.sender, payload.message)
@@ -30,16 +28,27 @@ io.use((client, next) => {
 				if(message) {
 					io.emit('messages', { action: 'create', room: payload.room, sender: payload.sender, timestamp: message.timestamp, message: payload.message }); // TODO: don't use payload. but message.
 				}
-			});
+				else {
+					console.error("Error creating message!");
+				}
+			})			
+			.catch(err => console.error("Error creating message", err));;
 		}
 	});
 
 	client.on('rooms', payload => {
 		if(payload.action === 'create') {
-			const room = app.get('db').createRoom(payload.room);
-			if(room) {
-				io.emit('rooms', { action: 'create', room: room });
-			}
+			app.get('db').createRoom(payload.room.name)
+			.then(room => {
+				console.log("Created new room", room);
+				if(room) {
+					io.emit('rooms', { action: 'create', room: room });
+				}
+				else {
+					console.error("Error creating room!");
+				}	
+			})
+			.catch(err => console.error("Error creating room", err));
 		}
 	});
 });
