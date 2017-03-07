@@ -1,6 +1,8 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+
 const session = require('express-session');
+const PostgresSessionStore = require('connect-pg-simple')(session);
 
 // Configure passport.js
 const configPassport = (app) => {
@@ -44,9 +46,11 @@ module.exports = {
 		app.use(session({
 			secret: process.env.SESSION_SECRET || 'some_random_chars_sagkdjghskldsgjkdsg',
 			resave: false,
-			saveUninitialized: false
-			// todo: store: PostgresStore or something, because atm it is in memory and that 
-			// A: is not persistent and B: doesn't work in heroku
+			saveUninitialized: false,
+			store: new PostgresSessionStore({
+			//	pg: pg
+				conString: process.env.DATABASE_URL // this is implicit, but let's keep it for reference
+			}),
 		}));
 
 		configPassport(app);
