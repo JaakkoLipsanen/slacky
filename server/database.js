@@ -1,3 +1,5 @@
+const hash = require('./misc/hash');
+
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('slacky', 'flai', 'konala', { // TODO: CHANGE THESE ALL TO USE ENV VARIABLES
 	host: 'localhost',
@@ -16,6 +18,7 @@ const validateLength = (name, min, max) => (val) => {
 		throw new Error(`${name} is too short or too long!`);
 };
 
+// TODO: move all models to their own files
 const User = sequelize.define('user', {
 	username: { 
 		type: Sequelize.STRING,
@@ -26,10 +29,41 @@ const User = sequelize.define('user', {
 		} 
 	},
 
-//  password_hash // TODO
-	password: { type: Sequelize.STRING }, // password could be of type "VIRTUAL" with set(val) defined // todo: validate pw length as well
+	// TODO: OKAY bcrypt package actually saves hashed = salt + hash(password + salt)
+	// so password_salt doesnt have to be saved to db. just use bcrypt.compare() funcs
+	password_salt: { type: Sequelize.STRING, allowNull: false },
+	password_hash: { type: Sequelize.STRING, allowNull: false }, // password could be of type "VIRTUAL" with set(val) defined // todo: validate pw length as well
 	profilePic: { type: Sequelize.STRING, allowNull: true, validate: { isUrl: true } }, // url
 });
+
+// todo: refactor and move to own folder
+User.Instance.prototype.passwordMatches = function(plainTextPassword) {
+	return new Promise((resolve, reject) => {
+		hash.hash(plainTextPassword, this.password_salt)
+		.then(hashed => {
+			resolve(this.password_hash === hashed);
+		})
+		.catch(err => reject(err));
+	});
+};
+
+// todo: refactor these, at least after async/await
+User.createAndHashPassword = (credientials) => {
+	return new Promise((resolve, reject) => {
+
+		hash.generateSalt()
+		.then(salt => {
+			hash.hash(credientials.password, salt)
+			.then(passwordHash => {
+
+				resolve(User.create({ username: credientials.username, password_hash: passwordHash, password_salt: salt }));	
+			})
+			.catch(err => { console.error(err); reject(err) });
+		})
+		.catch(err => { console.error(err); reject(err) });
+	});
+};
+
 
 const Room = sequelize.define('rooms', {
 	name: { type: Sequelize.STRING, allowNull: false, unique: true, validate: { isLengthValid: validateLength("Room name", 3, 10) } }
@@ -44,9 +78,8 @@ Room.hasMany(Message);
 Message.belongsTo(User, { as: 'sender' });
 
 // syncs the tables to the db. force: false doesn't drop the table if it exists
-User.sync({ force: false });
-Room.sync({ force: false });
-Message.sync({ force: false });
+sequelize.sync({ force: false });
+
 
 module.exports = {
 	User,

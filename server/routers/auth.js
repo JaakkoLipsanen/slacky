@@ -14,8 +14,12 @@ authRouter.post('/validate-credentials', (req, res) => { // asks whether credien
 	db.User.findOne({
 		where: { username: req.body.username }
 	})
-	.then(user => res.json({ valid : Boolean(user) && user.password === req.body.password }) )
-	.catch(err => res.status(500).send());
+	.then(user => {
+		if(!user) return res.json({ valid: false });
+		return user.passwordMatches(req.body.password);
+	})
+	.then(passwordMatches => res.json({ valid: passwordMatches }))
+	.catch(err => { console.error(err); res.status(500).send() });
 	
 });
 

@@ -25,13 +25,17 @@ const configPassport = (app) => {
 				return done (null, false, { message: `User ${username} doesnt exist` });
 			}
 
-			if(user.password !== password) {
-				console.error("Passport LocalStrategy. Wrong password supplied for user", username);
-				return done (null, false, { message: `Password doesn't match for user ${username}` });
-			}
+			user.passwordMatches(password)
+			.then(match => {
+				if(!match) {
+					console.error("Passport LocalStrategy. Wrong password supplied for user", username);
+					return done (null, false, { message: `Password doesn't match for user ${username}` });
+				}
 
-			delete user.password; // remove the user.password, since it's not required from now on
-			return done(null, user);
+				delete user.password; // remove the user.password, since it's not required from now on
+				return done(null, user);
+			})
+			.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
 		})
 		.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
 	}));
@@ -109,7 +113,7 @@ module.exports = {
 				return;
 			}
 
-			db.User.create({ username: req.body.username, password: req.body.password })
+			db.User.createAndHashPassword({ username: req.body.username, password: req.body.password })
 			.then(createdUser => {
 				if(!createdUser) {
 					res.status(500).json({ error: "Error creating a new user" });
