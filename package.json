@@ -5,8 +5,8 @@
   "author": "JaakkoLipsanen <jaakko.lipsanen@outlook.com>",
   "private": true,
   "scripts": {
-    "start": "cross-env NODE_ENV=production node server/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon server/server.js",
+    "start": "cross-env NODE_ENV=production BLUEBIRD_WARNINGS=0 node server/server.js",
+    "dev": "cross-env NODE_ENV=development BLUEBIRD_WARNINGS=0 nodemon server/server.js",
     "build": "cross-env NODE_ENV=production webpack --config build/webpack.production.config.js -p --progress --hide-modules ",
     "production": "npm run build & npm run start"
   },

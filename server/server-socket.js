@@ -1,37 +1,53 @@
 const socketio = require('socket.io');
-const $db = require('./database');
+const db = require('./database');
 
-const onMessageReceived = (io, payload) => {
-	if(payload.action === 'create') {
-		$db.createMessage(payload.room, payload.sender, payload.message)
-		.then(message => {			
-			if(message) {
-				io.emit('messages', { action: 'create', room: payload.room, sender: payload.sender, timestamp: message.timestamp, message: payload.message }); // TODO: don't use payload, but message. (??????)
+// TODO: A: refactor this to have only depth of 1 and B: could these checks be done on db-level?
+const createMessage = (io, roomName, sender, messageText) => {
+	db.Room.findOne({
+		where: { name: roomName }
+	})
+	.then(room => {
+		if(!room) {
+			return reject({ type: 'arguments', message: "Trying to create message but room doesn't exist" });
+		}
+
+		db.User.findOne({
+			where: { username: sender.username }
+		})
+		.then(user => {
+			if(!user) {
+				return reject({ type: 'arguments', message: "Trying to create message but user doesn't exist" });
 			}
-			else {
+
+			db.Message.create({ roomId: room.dataValues.id, senderId: user.dataValues.id, text: messageText })
+			.then(createdMessage => { 
+				io.emit('messages', { 
+					action: 'create', 
+					room: roomName, 
+					sender: sender, 
+					timestamp: createdMessage.timestamp, 
+					message: messageText 
+				}); 
+			})
+			.catch(err => { 
 				io.emit('messages', { action: 'error', message: "Error in creating new message" });
-				console.error("Error creating message!");
-			}
-		})			
-		.catch(err => console.error("Error creating message", err));
-	}
+				console.error("Error in creating message", err);
+			});
+		})
+	})
+	.catch(err => console.error(err));
 };
 
-const onRoomMessageReceived = (io, payload) => {
-	if(payload.action === 'create') {
-		$db.createRoom(payload.room.name)
-		.then(room => {
-			if(room) {
-				console.log("Created new room", room);
-				io.emit('rooms', { action: 'create', room: room });
-			}
-			else {
-				io.emit('rooms', { action: 'error', message: "Error in creating new room" });
-				console.error("Error creating room!");
-			}	
-		})
-		.catch(err => console.error("Error creating room", err));
-	}
+const createRoom = (io, roomName) => {
+	db.Room.create({ name: roomName })
+	.then(created => { 
+		created.dataValues.messages = []; // .messages isn't automatically included :/
+		io.emit('rooms', { action: 'create', room: created });
+	})
+	.catch(err => {
+		io.emit('rooms', { action: 'error', message: `Error creating room ${roomName}` });
+		console.error(`Error creating room ${roomName}`, err);
+	});
 };
 
 module.exports = {
@@ -44,8 +60,16 @@ module.exports = {
 			// not a huge problem at least atm, but I think authentication could be put here?
 			next();
 		}).on('connection', client => { // TODO: atm one client can have multiple connections here... limit to 1 per user
-			client.on('messages', payload => onMessageReceived(io, payload));
-			client.on('rooms', payload => onRoomMessageReceived(io, payload));
+			client.on('messages', payload => {
+				if(payload.action === 'create') createMessage(io, payload.room,  payload.sender, payload.message);
+			//	if(payload.action === 'delete') ?
+			});
+
+			client.on('rooms', payload => {
+				if(payload.action === 'create') createRoom(io, payload.room.name);
+			//  if(payload.action === 'delete')
+			//  if(paylaod.action === 'edit)
+			});
 		});
 	}
 }
