@@ -8,9 +8,7 @@
 
 import Vue from 'vue';
 Vue.mixin({ // defines this.$popup in all vue components..
-	computed: {
-		$popup() { return this.$root._popup; }
-	}
+	computed: { $popup() { return this.$root._popup; } }
 });
 
 import NewRoomPopup from './components/new-room-popup.vue';
@@ -37,6 +35,8 @@ export default {
 			});
 		},
 
+		// todo: atm what could happen is that show is called twice and first close gets called basically
+		// after the second call whic would cause onSuccess to throw null error tjsp.
 		close() {
 			this.currentPopup = null;
 			this.currentPromise = null;
@@ -54,9 +54,3 @@ export default {
 	}
 }
 </script>
-
-<style lang='scss' scoped>
-
-
-
-</style>

@@ -22,13 +22,13 @@ export default {
 			const redirectToLoginPage = () => {
 				this.$router.redirect('Login')
 				.then(() => this.$store.commit('resetState')) // reset state only after page has faded out
-				.catch(err => console.log(`Error on logout: ${err}`));
+				.catch(err => console.log("Error on logout:", err));
 			};
 
 			api.logout()
 			.then(() => redirectToLoginPage())
 			.catch(err => {
-				console.error(`Error on logout: ${err}`);
+				console.error("Error on logout:", err);
 				redirectToLoginPage();
 			})
 		}
@@ -63,7 +63,7 @@ $container-height: 40px;
 	background-color: white;
 }
 
-/* todo: this is not very well done atm :P it's manually positioned and doesn't scale if sidebar width changes */
+/* todo: this is not especially well coded atm :P */
 $base-color: #898989;
 .logout-button {
 

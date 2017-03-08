@@ -1,6 +1,10 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+
 const session = require('express-session');
+const PostgresSessionStore = require('connect-pg-simple')(session);
+
+const db = require('./database');
 
 // Configure passport.js
 const configPassport = (app) => {
@@ -8,32 +12,47 @@ const configPassport = (app) => {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-	// checks whether username and password are valid
-	passport.use(new LocalStrategy(
-		(username, password, done) => {
-			const user = app.get('db').findUser(username);
- 
-			if (!user || user.password !== password) {
-				console.log("Auth: LocalStrategy: user not found or wrong password");
-				return done(null, false, { message: 'Username and password combination is wrong' });
+	// use local authentication. could use facebook/github whatever auth as well
+	passport.use(new LocalStrategy((username, password, done) => {
+
+		// find user and make sure the password matches
+		db.User.findOne({ 
+			where: { username: username }
+		})
+		.then(user => {
+			if(!user) {
+				console.error("Passport LocalStrategy. User not found:", username);
+				return done (null, false, { message: `User ${username} doesnt exist` });
 			}
 
-			delete user.password; // remove the user.password, since it's not required from now on
-			return done(null, user);
-		}
-	));
+			user.passwordMatches(password)
+			.then(match => {
+				if(!match) {
+					console.error("Passport LocalStrategy. Wrong password supplied for user", username);
+					return done (null, false, { message: `Password doesn't match for user ${username}` });
+				}
 
-	// Serialize user to cookie
+				delete user.password; // remove the user.password, since it's not required from now on
+				return done(null, user);
+			})
+			.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
+		})
+		.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
+	}));
+
+	// Serialize user to a cookie
 	passport.serializeUser((user, done) => {
 		done(null, user.username);
 	});
 
 	// Deserialize user from cookie
 	passport.deserializeUser((username, done) => {
-		const user = app.get('db').findUser(username);
-		delete user.password;
-
-		done(null, user);
+		db.User.findOne({ 
+			where: { username: username },
+			attributes: { exclude: ['password'] }
+		})
+		.then(user => done(null, user))
+		.catch(err => { console.error("Passport.deserializer error", err); done(err); });
 	});
 };
 
@@ -42,9 +61,11 @@ module.exports = {
 		app.use(session({
 			secret: process.env.SESSION_SECRET || 'some_random_chars_sagkdjghskldsgjkdsg',
 			resave: false,
-			saveUninitialized: false
-			// todo: store: PostgresStore or something, because atm it is in memory and that 
-			// A: is not persistent and B: doesn't work in heroku
+			saveUninitialized: false,
+			store: new PostgresSessionStore({
+			//	pg: pg
+				conString: process.env.DATABASE_URL // this is implicit, but let's keep it for reference
+			}),
 		}));
 
 		configPassport(app);
@@ -52,7 +73,7 @@ module.exports = {
 
 	// login and register could maybe possibly idontknow combined :P ?
 	login(req, res, next) {
-		if(req.user) {
+		if(req.user) { // if user is logged in
 			req.logout();
 		}
 
@@ -60,7 +81,7 @@ module.exports = {
 			if (err) { return next(err); }
 
 			if (!user) { 		
-				console.log("Login failed: wrong credentials");
+				console.error("Login failed: wrong credentials");
 				return res.status(401).json({ error: "User not found" });
 			}
 
@@ -82,25 +103,31 @@ module.exports = {
 	},
 
 	register(req, res, next) {
-		const db = req.app.get('db');
-		const user = db.findUser(req.body.username);
-		if(user) {
-			// todo: should redirect to login function above?
-			res.status(401).json({ error: "Username already taken"});
-			return;
-		}
+		db.User.findOne({
+			where: { username: req.body.username }
+		 })
+		.then(user => {
+			if(user) {
+				// todo: should redirect to login function above?
+				res.status(401).json({ error: "Username already taken"});
+				return;
+			}
 
-		const createdUser = db.createUser(req.body.username, req.body.password);
-		if(!createdUser) {
-			res.status(500).json({ error: "Error creating a new user" });
-			return;
-		}
+			db.User.createAndHashPassword({ username: req.body.username, password: req.body.password })
+			.then(createdUser => {
+				if(!createdUser) {
+					res.status(500).json({ error: "Error creating a new user" });
+					return;
+				}
 
-		req.login(createdUser, err => {
-			if (err) { return next(err); }		
+				req.login(createdUser, err => {
+					if (err) { return next(err); }		
 
-			console.log("Registeration succesful");
-			return res.json({ user: createdUser });
+					console.log("Registeration succesful");
+					return res.json({ user: createdUser });
+				});
+			})
+			.catch(err => { console.error("Passport.register error", err); next(err); });
 		});
 	},
 

@@ -6,6 +6,7 @@
 			</transition>
 		</div>
 
+		<!-- Popup "manager" -->
 		<Popup></Popup>
 	</div>
 </template>
@@ -19,9 +20,7 @@ import api from './api';
 
 import Vue from 'vue';
 Vue.mixin({ // defines this.$router in all vue components..
-	computed: {
-		$router() { return this.$root._router; }
-	}
+	computed: { $router() { return this.$root._router; } }
 });
 
 export default {

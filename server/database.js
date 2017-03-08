@@ -1,64 +1,88 @@
-/* placehodler for actual database */
+const hash = require('./misc/hash');
 
-const users = [
-	{ username: 'flai', password: 'konala' },
-	{ username: 'puupaa', password: 'muumipeikko'},
-];
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('slacky', 'flai', 'konala', { // TODO: CHANGE THESE ALL TO USE ENV VARIABLES
+	host: 'localhost',
+	dialect: 'postgres',
+	logging: false,
 
-const rooms = [
-	{ name: "general", messages: [] },
-	{ name: "coding", messages: [] }
-];
+	pool: {
+		max: 5,
+		min: 0,
+		idle: 10000
+	},
+});
+
+const validateLength = (name, min, max) => (val) => {
+	if(val.length < min || val.length > max) 
+		throw new Error(`${name} is too short or too long!`);
+};
+
+// TODO: move all models to their own files
+const User = sequelize.define('user', {
+	username: { 
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique: true,
+		validate: {
+			isLengthValid: validateLength("Username", 4, 15)
+		} 
+	},
+
+	// TODO: OKAY bcrypt package actually saves hashed = salt + hash(password + salt)
+	// so password_salt doesnt have to be saved to db. just use bcrypt.compare() funcs
+	password_salt: { type: Sequelize.STRING, allowNull: false },
+	password_hash: { type: Sequelize.STRING, allowNull: false }, // password could be of type "VIRTUAL" with set(val) defined // todo: validate pw length as well
+	profilePic: { type: Sequelize.STRING, allowNull: true, validate: { isUrl: true } }, // url
+});
+
+// todo: refactor and move to own folder
+User.Instance.prototype.passwordMatches = function(plainTextPassword) {
+	return new Promise((resolve, reject) => {
+		hash.hash(plainTextPassword, this.password_salt)
+		.then(hashed => {
+			resolve(this.password_hash === hashed);
+		})
+		.catch(err => reject(err));
+	});
+};
+
+// todo: refactor these, at least after async/await
+User.createAndHashPassword = (credientials) => {
+	return new Promise((resolve, reject) => {
+
+		hash.generateSalt()
+		.then(salt => {
+			hash.hash(credientials.password, salt)
+			.then(passwordHash => {
+
+				resolve(User.create({ username: credientials.username, password_hash: passwordHash, password_salt: salt }));	
+			})
+			.catch(err => { console.error(err); reject(err) });
+		})
+		.catch(err => { console.error(err); reject(err) });
+	});
+};
+
+
+const Room = sequelize.define('rooms', {
+	name: { type: Sequelize.STRING, allowNull: false, unique: true, validate: { isLengthValid: validateLength("Room name", 3, 10) } }
+});
+
+const Message = sequelize.define('messages', {
+	text: { type: Sequelize.STRING },
+	timestamp: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+});
+
+Room.hasMany(Message);
+Message.belongsTo(User, { as: 'sender' });
+
+// syncs the tables to the db. force: false doesn't drop the table if it exists
+sequelize.sync({ force: false });
+
 
 module.exports = {
-	users: users,
-	rooms: rooms,
-
-	// todo: this should probably return user without password. create separate function for checking password
-	findUser(username) {
-		const user = this.users.find(u => u.username === username);
-
-		// Object.assign creates a shallow copy
-		return user ? Object.assign({}, user) : undefined;
-	},
-
-	findRoom(roomName) {	
-		return this.rooms.find(room => room.name === roomName);
-	},
-
-	createUser(username, password) {
-		const MinPasswordLength = 6;
-		if(password.length < MinPasswordLength) return null;
-		if(this.findUser(username)) return null;
-
-		const user = { username: username, password: password };
-		this.users.push(user);
-
-		console.log("New user created: " + username);
-		return user;
-	},
-
-	createMessage(roomName, message) {
-		const room = this.findRoom(roomName);
-		if(!room) {
-			console.error("Message received, but room was not found: " + roomName + ": " + message.text);
-			return null;
-		}
-		
-		message.timestamp = new Date();
-		room.messages.push(message);
-
-		return message;
-	},
-
-	createRoom(room) {
-		if(this.findRoom(room.name)) {
-			console.error("Trying to create a duplicate room");
-			return;
-		}
-
-		room = { name: room.name, messages: [] };
-		this.rooms.push(room);
-		return room;
-	}
+	User,
+	Room,
+	Message,
 };

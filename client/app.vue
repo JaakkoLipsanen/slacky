@@ -28,11 +28,11 @@ export default {
 			if(err.data && err.data.type === 'auth') {
 				// atm the App is the default page. So if user has not logged in before
 				// or has logged out, redirect to the login page
-				this.$router.redirect('Login');
+				this.$router.redirect('Login', { errorMessage: "Please log in" });
 				return;
 			}	
 			
-			console.error("Unknown error in establishing connection: " + err);
+			console.error("Unknown error in establishing connection", err);
 		});
 	},
 }
