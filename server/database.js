@@ -14,7 +14,7 @@ const sequelizeConfig = {
 
 const sequelize = process.env.DATABASE_URL ? 
 	new Sequelize(process.env.DATABASE_URL, sequelizeConfig) :
-	new Sequelize('slacky', 'flai', 'konala', sequelizeConfig);
+	new Sequelize('slacky', 'flai', 'konala', sequelizeConfig); // todo: put in env variables
 
 const validateLength = (name, min, max) => (val) => {
 	if(val.length < min || val.length > max) 

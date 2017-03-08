@@ -7,7 +7,7 @@ const db = require('../database');
 apiRouter.get('/user/:username', (req, res) => {
 	db.User.findOne({
 		where: { username: req.params.username },
-		attributes: { exclude: ['password'] }
+		attributes: { exclude: ['password_hash'] }
 	})
 	.then(user => res.json({ user: user }))
 	.catch(err => { console.error("api.get(user) error!", err); res.status(401).send(); });
