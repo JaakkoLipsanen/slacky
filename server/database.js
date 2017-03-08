@@ -1,8 +1,7 @@
 const hash = require('./misc/hash');
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('slacky', 'flai', 'konala', { // TODO: CHANGE THESE ALL TO USE ENV VARIABLES
-	host: 'localhost',
+const sequelizeConfig = {
 	dialect: 'postgres',
 	logging: false,
 
@@ -11,7 +10,11 @@ const sequelize = new Sequelize('slacky', 'flai', 'konala', { // TODO: CHANGE TH
 		min: 0,
 		idle: 10000
 	},
-});
+};
+
+const sequelize = process.env.DATABASE_URL ? 
+	new Sequelize(process.env.DATABASE_URL, sequelizeConfig) :
+	new Sequelize('slacky', 'flai', 'konala', sequelizeConfig);
 
 const validateLength = (name, min, max) => (val) => {
 	if(val.length < min || val.length > max) 
