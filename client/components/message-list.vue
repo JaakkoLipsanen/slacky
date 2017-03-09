@@ -6,7 +6,7 @@
 			<div class="message-text-container">
 				<h4 class="message-sender">{{ msg.sender.username }}</h4>
 				<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
-				<h4 class="message-text">{{ msg.text }}</h1>
+				<h4 class="message-text">{{ msg.text }}</h4>
 			</div>
 		</li>
 	</ul>

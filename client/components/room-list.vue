@@ -4,7 +4,7 @@
 		<a class="new-room-button" @click="showPopup">+</a>
 
 		<div v-for="room in $store.state.chatClient.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
-			<a class="room-entry" @click="changeRoom(room)"># {{ room.name.toLowerCase() }}</h1>
+			<a class="room-entry" @click="changeRoom(room)"># {{ room.name.toLowerCase() }}</a>
 		</div>
 	</div>
 </template>
