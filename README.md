@@ -8,6 +8,4 @@
 - [**socket.io**](http://socket.io/) for web-sockets
 - [**passport**](http://passportjs.org/) for authentication
 - [**PostgreSQL**](https://www.postgresql.org/) for database
-- [**sequelize**](sequelizejs.com) for database ORM.
-
-*Version with persistent Postegre database is not yet live :) !*
+- [**sequelize**](sequelizejs.com) for database ORM
