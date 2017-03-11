@@ -10,17 +10,15 @@ authRouter.post('/login', authentication.login);
 authRouter.post('/logout', authentication.logout);
 authRouter.post('/user', authentication.loggedInUser);
 
-authRouter.post('/validate-credentials', (req, res) => { // asks whether credientials are correct, but does not login
-	db.User.findOne({
-		where: { username: req.body.username }
-	})
-	.then(user => {
-		if(!user) return res.json({ valid: false });
-		return user.passwordMatches(req.body.password);
-	})
-	.then(passwordMatches => res.json({ valid: passwordMatches }))
-	.catch(err => { console.error(err); res.status(500).send() });
-	
+authRouter.post('/validate-credentials', async (req, res) => { // asks whether credientials are correct, but does not login
+	try {
+		const user = await db.User.findOne({
+			where: { username: req.body.username }
+		});
+
+		return res.json({ valid: Boolean(user) && await user.passwordMatches(req.body.password) });
+	}
+	catch(err) { console.error(err); res.status(500).send() }
 });
 
 // limits the amount of requests by single IP so that user cannot 

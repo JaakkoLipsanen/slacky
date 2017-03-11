@@ -13,31 +13,28 @@ const configPassport = (app) => {
 	app.use(passport.session());
 
 	// use local authentication. could use facebook/github whatever auth as well
-	passport.use(new LocalStrategy((username, password, done) => {
+	passport.use(new LocalStrategy(async (username, password, done) => {
+		try {
+			const user = await db.User.findOne({ 
+				where: { username: username }
+			});
 
-		// find user and make sure the password matches
-		db.User.findOne({ 
-			where: { username: username }
-		})
-		.then(user => {
 			if(!user) {
 				console.error("Passport LocalStrategy. User not found:", username);
 				return done (null, false, { message: `User ${username} doesnt exist` });
 			}
 
-			user.passwordMatches(password)
-			.then(match => {
-				if(!match) {
-					console.error("Passport LocalStrategy. Wrong password supplied for user", username);
-					return done (null, false, { message: `Password doesn't match for user ${username}` });
-				}
+			const passwordMatches = await user.passwordMatches(password);
+			if(!passwordMatches) {
+				console.error("Passport LocalStrategy. Wrong password supplied for user", username);
+				return done (null, false, { message: `Password doesn't match for user ${username}` });
+			}
 
-				delete user.password_hash; // remove the password, since it's not required from now on
-				return done(null, user);
-			})
-			.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
-		})
-		.catch(err => { console.error("Passport.LocalStrategy error", err); done(err); });
+			delete user.password_hash; // remove the password, since it's not required from now on
+			return done(null, user);
+		}
+		catch(err) { return done(err); }
+
 	}));
 
 	// Serialize user to a cookie
@@ -46,13 +43,16 @@ const configPassport = (app) => {
 	});
 
 	// Deserialize user from cookie
-	passport.deserializeUser((username, done) => {
-		db.User.findOne({ 
-			where: { username: username },
-			attributes: { exclude: ['password_hash'] }
-		})
-		.then(user => done(null, user))
-		.catch(err => { console.error("Passport.deserializer error", err); done(err); });
+	passport.deserializeUser(async (username, done) => {
+		try {
+			const user = await db.User.findOne({ 
+				where: { username: username },
+				attributes: { exclude: ['password_hash'] }
+			});
+
+			return done(null, user);
+		}
+		catch(err) { console.error("Passport.deserializer error", err); done(err); };
 	});
 };
 
@@ -102,33 +102,32 @@ module.exports = {
 		})(req, res, next); 
 	},
 
-	register(req, res, next) {
-		db.User.findOne({
-			where: { username: req.body.username }
-		 })
-		.then(user => {
-			if(user) {
+	async register(req, res, next) {
+		try {
+			const userExists = await db.User.findOne({
+				where: { username: req.body.username }
+			});
+			
+			if(userExists) {
 				// todo: should redirect to login function above?
 				res.status(401).json({ error: "Username already taken"});
 				return;
 			}
 
-			db.User.createAndHashPassword({ username: req.body.username, password: req.body.password })
-			.then(createdUser => {
-				if(!createdUser) {
-					res.status(500).json({ error: "Error creating a new user" });
-					return;
-				}
+			const createdUser = await db.User.createAndHashPassword({ username: req.body.username, password: req.body.password })
+			if(!createdUser) {
+				res.status(500).json({ error: "Error creating a new user" });
+				return;
+			}
 
-				req.login(createdUser, err => {
-					if (err) { return next(err); }		
+			req.login(createdUser, err => {
+				if (err) { return next(err); }		
 
-					console.log("Registeration succesful");
-					return res.json({ user: createdUser });
-				});
-			})
-			.catch(err => { console.error("Passport.register error", err); next(err); });
-		});
+				console.log("Registeration succesful");
+				return res.json({ user: createdUser });
+			});
+		}
+		catch(err) { console.error("Passport.register error", err); next(err); };
 	},
 
 	logout(req, res, next) {

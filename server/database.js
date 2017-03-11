@@ -1,4 +1,4 @@
-const hash = require('./misc/hash');
+const crypto = require('./misc/crypto');
 
 const Sequelize = require('sequelize');
 const sequelizeConfig = {
@@ -40,33 +40,18 @@ const User = sequelize.define('user', {
 });
 
 // todo: refactor and move to own folder
-User.Instance.prototype.passwordMatches = function(plainTextPassword) {
-	return new Promise((resolve, reject) => {
-		hash.hash(plainTextPassword, this.password_salt)
-		.then(hashed => {
-			resolve(this.password_hash === hashed);
-		})
-		.catch(err => reject(err));
-	});
+User.Instance.prototype.passwordMatches = async function(plainTextPassword) {
+	const hash = await crypto.hash(plainTextPassword, this.password_salt);
+	return this.password_hash === hash;
 };
 
-// todo: refactor these, at least after async/await
-User.createAndHashPassword = (credientials) => {
-	return new Promise((resolve, reject) => {
+// todo: try catch or no?
+User.createAndHashPassword = async (credientials) => {
+	const salt = await crypto.generateSalt();		
+	const hash = await crypto.hash(credientials.password, salt);
 
-		hash.generateSalt()
-		.then(salt => {
-			hash.hash(credientials.password, salt)
-			.then(passwordHash => {
-
-				resolve(User.create({ username: credientials.username, password_hash: passwordHash, password_salt: salt }));	
-			})
-			.catch(err => { console.error(err); reject(err) });
-		})
-		.catch(err => { console.error(err); reject(err) });
-	});
+	return User.create({ username: credientials.username, password_hash: hash, password_salt: salt });	
 };
-
 
 const Room = sequelize.define('rooms', {
 	name: { type: Sequelize.STRING, allowNull: false, unique: true, validate: { isLengthValid: validateLength("Room name", 3, 10) } }
@@ -82,7 +67,6 @@ Message.belongsTo(User, { as: 'sender' });
 
 // syncs the tables to the db. force: false doesn't drop the table if it exists
 sequelize.sync({ force: false });
-
 
 module.exports = {
 	User,
