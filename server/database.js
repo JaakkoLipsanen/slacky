@@ -32,25 +32,19 @@ const User = sequelize.define('user', {
 		} 
 	},
 
-	// TODO: OKAY bcrypt package actually saves hashed = salt + hash(password + salt)
-	// so password_salt doesnt have to be saved to db. just use bcrypt.compare() funcs
-	password_salt: { type: Sequelize.STRING, allowNull: false },
-	password_hash: { type: Sequelize.STRING, allowNull: false }, // password could be of type "VIRTUAL" with set(val) defined // todo: validate pw length as well
+	password_hash: { type: Sequelize.STRING, allowNull: false },// todo: validate pw length as well
 	profilePic: { type: Sequelize.STRING, allowNull: true, validate: { isUrl: true } }, // url
 });
 
 // todo: refactor and move to own folder
 User.Instance.prototype.passwordMatches = async function(plainTextPassword) {
-	const hash = await crypto.hash(plainTextPassword, this.password_salt);
-	return this.password_hash === hash;
+	return await crypto.compare(this.password_hash, plainTextPassword);
 };
 
 // todo: try catch or no?
-User.createAndHashPassword = async (credientials) => {
-	const salt = await crypto.generateSalt();		
-	const hash = await crypto.hash(credientials.password, salt);
-
-	return User.create({ username: credientials.username, password_hash: hash, password_salt: salt });	
+User.createAndHashPassword = async (credientials) => {	
+	const hash = await crypto.hash(credientials.password);
+	return User.create({ username: credientials.username, password_hash: hash });	
 };
 
 const Room = sequelize.define('rooms', {
