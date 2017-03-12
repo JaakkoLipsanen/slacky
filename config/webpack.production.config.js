@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const config = require('./webpack.base.config'); // extend the base config
 
-config.entry = './client/main.js';
+config.entry = ['babel-polyfill','./client/main.js'];
 config.devtool = false;
 config.performance = { hints: "error" };
 
