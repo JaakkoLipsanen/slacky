@@ -7,7 +7,7 @@
 			<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" @keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
 			<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" placeholder="Enter password" @keyup="passwordChanged" @keydown.enter="login" ><br>
 						
-			<button class="enter-button" :class="{ visible: isUsernameValid}" :disabled="isUsernameValid && !isPasswordValid" v-on:click="login">{{ enterButtonText }}</button>
+			<button class="enter-button" :disabled="!passwordMatches" v-on:click="login">{{ enterButtonText }}</button>
 		</div>
 	</div>
 </template>
@@ -60,25 +60,19 @@ export default {
 		},
 
 		usernameInputClasses() {
-			return {
-				// invalid style only if the username itself is too short/long AND the input is not empty
-				'invalid-input': !this.isUsernameValid && this.username.length !== 0
-			};
+			return { 'invalid-input': !this.isUsernameValid && this.username.length !== 0 };
 		},
 
 		passwordInputClasses() {
-			return {
-				'invalid-input': this.password.length != 0 && !this.isPasswordValid,
-				'visible': this.isUsernameValid
-			};
+			return { 'invalid-input': this.password.length != 0 && !this.isPasswordValid };
 		},
 
-		isEnterButtonDisabled() {
+		passwordMatches() {
 			if(this.usernameState === UsernameState.Exists) {
-				return this.passwordState === PasswordState.Matches;
+				return this.passwordState == PasswordState.Matches;
 			}
 
-			return false;
+			return this.isUsernameValid && this.isPasswordValid;
 		},
 		
 		enterButtonText() {
@@ -170,20 +164,20 @@ $invalid-value-color: rgb(222, 32, 32);
 
 .username-input {
 	margin-bottom: 8px;
-
-	opacity: 1 !important;
-	visibility: visible !important;
 }
 
-.username-input, .password-input, .enter-button, .generated-profile-pic {
+.generated-profile-pic, .enter-button {
 	transition: visibility 0.5s, opacity 0.5s, border-color 0.6s, background 0.5s;
-	opacity: 0;
-	visibility: hidden;
 
 	&.visible {
 		visibility: visible;
 		opacity: 1;
 	}
+}
+
+.generated-profile-pic {
+	opacity: 0;
+	visibility: hidden;
 }
 
 $button-base-color: palegreen;
