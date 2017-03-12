@@ -39,13 +39,15 @@ export default {
 		} 
 	},
 
-	beforeCreate() {
+	async beforeCreate() {
 		this.$root._router = this;
 
 		// if the client is not logged in, then display login screen
-		api.getCurrentUser()
-		.then(user => this.currentView = user ? 'App' : 'Login')
-		.catch(err => { console.error("Error on finding if user is logged in"); this.currentView = "Login"; });
+		try {
+			const user = await api.getCurrentUser()
+			this.currentView = user ? 'App' : 'Login';
+		}
+		catch(err) { console.error("Error on finding if user is logged in"); this.currentView = "Login"; }
 	},
 
 	methods: {

@@ -1,67 +1,38 @@
 import axios from 'axios';
 
 export default {
-	login(userCredentials) {	
-		return new Promise((resolve, reject) => {		
-
-			axios.post('/api/auth/login', userCredentials)
-			.then(response => resolve(response.data.user))
-			.catch(err => console.log(err));
-		});
+	async login(userCredentials) {	
+		const response = await axios.post('/api/auth/login', userCredentials);
+		return response.data.user;
 	},
 
-	register(userCredentials) {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/auth/register', userCredentials)
-			.then(response => resolve(response.data.user))
-			.catch(err => reject(err));
-		});
+	async register(userCredentials) {
+		const response = await axios.post('/api/auth/register', userCredentials)
+		return response.data.user;
 	},
 
-	logout(userCredentials) {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/auth/logout')
-			.then(() => resolve())
-			.catch(err => reject(err));
-		});
+	async logout(userCredentials) {
+		await axios.post('/api/auth/logout')
 	},
 
-	validateCredentials(userCredentials) {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/auth/validate-credentials', userCredentials)
-			.then(response => resolve(response.data.valid))
-			.catch(err => reject(err));
-		});
+	async validateCredentials(userCredentials) {
+		const response = await axios.post('/api/auth/validate-credentials', userCredentials);
+		return response.data.valid;
 	},
 
 	// returns the logged in user
-	getCurrentUser() {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/auth/user')
-			.then(response => resolve(response.data.user))
-			.catch(err => reject(err));
-		}); 
+	async getCurrentUser() {
+		const response = await axios.post('/api/auth/user');
+		return response.data.user;
 	},
 
-	getUser(username) {
-		return new Promise((resolve, reject) => {
-
-			axios.get('/api/user/' + username)
-			.then(response => resolve(response.data.user))
-			.catch(err => reject(err));
-		});
+	async getUser(username) {
+		const response = await axios.get('/api/user/' + username);
+		return response.data.user;
 	},
 
-	openConnection(onNewMessage) {
-		return new Promise((resolve, reject) => {
-
-			axios.post('/api/connection')
-			.then(response => resolve(response))
-			.catch(err => reject(err.response));
-		});
+	async openConnection(onNewMessage) {
+		const response = await axios.post('/api/connection');
+		return response;
 	}
 }

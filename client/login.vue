@@ -90,35 +90,40 @@ export default {
 			this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
 		},
 
-		usernameChanged(event) {
+		async usernameChanged(event) {
 			if(!this.isUsernameValid) {
 				this.usernameState = UsernameState.Invalid;
 				return;
 			}
 
-			api.getUser(this.username)
-			.then(user => this.usernameState = user ? UsernameState.Exists : UsernameState.New )
-			.catch(this.showError);
+			try {
+				const user = await api.getUser(this.username)
+				this.usernameState = user ? UsernameState.Exists : UsernameState.New;
+				
+				// update the generated profile pic (which is based on username hash)
+				identicon.generate(this.$refs.identicon, this.username);
+			}
+			catch(err) { this.showError(err); }
 
-			// update the generated profile pic (which is based on username hash)
-			identicon.generate(this.$refs.identicon, this.username);
 		},
 
 		isNewPasswordValid: (pw) => pw.length >= 6,
-		passwordChanged(event) {
+		async passwordChanged(event) {
 			const isPasswordValid = this.isNewPasswordValid(this.password);
 			if(!isPasswordValid) {
 				this.passwordState = PasswordState.Invalid;
 				return;
 			}
 
-			api.validateCredentials({ username: this.username, password: this.password })
-			.then(correct => this.passwordState = correct ? PasswordState.Matches : PasswordState.Invalid )
-			.catch(this.showError);
+			try {
+				const credentialsCorrect = await api.validateCredentials({ username: this.username, password: this.password });
+				this.passwordState = credentialsCorrect ? PasswordState.Matches : PasswordState.Invalid;
+			}
+			catch(err) { this.showErr(err); }
 		},
 
 		login(event) {		
-			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
+			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;			
 			loginFunction({
 				username: this.username,
 				password: this.password

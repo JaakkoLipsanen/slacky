@@ -4,6 +4,7 @@ const config = require('./webpack.base.config'); // extend the base config
 config.entry = [
   'webpack/hot/dev-server',
   'webpack-hot-middleware/client',
+  'babel-polyfill',
   './client/main.js',
 ];
 

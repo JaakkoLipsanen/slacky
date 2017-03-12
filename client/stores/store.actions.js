@@ -1,31 +1,20 @@
 import ChatClient from '../misc/chat-client';
 
 export default {
-	sendMessage(context, message) {
-		return new Promise((resolve, reject) => {
-
-			// todo: the sender should not be sent, it should be determined on the server!
-			context.state.chatClient.sendMessage({ room: context.state.currentRoom.name, sender: context.state.user, message: message });
-			resolve(); // TODO!!! never reject atm. I dont know.. should it be checked whether it's actually sent or something?
-		});
+	async sendMessage(context, message) {
+		// todo: the sender should not be sent, it should be determined on the server!
+		context.state.chatClient.sendMessage({ room: context.state.currentRoom.name, sender: context.state.user, message: message });
+		
+		// todo: await to make sure the message was sent succesfully?
 	},
 
-	openConnection(context) {
-		return new Promise((resolve, reject) => {
-
-			ChatClient.openConnection()
-			.then(payload => {
-				context.commit('initializeState', payload);
-				resolve();
-			})
-			.catch(err => reject(err));
-		});
+	async openConnection(context) {
+		const payload = await ChatClient.openConnection();
+		context.commit('initializeState', payload);
 	},
 
-	createNewRoom(context, roomName) {
-		return new Promise((resolve, reject) => {
-			context.state.chatClient.createRoom(roomName);
-			resolve(); // ...
-		});
+	async createNewRoom(context, roomName) {
+		context.state.chatClient.createRoom(roomName);
+		// todo: await to make sure room was created succesfully?
 	}
 };

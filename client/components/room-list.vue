@@ -17,9 +17,9 @@ export default {
 	methods: {
 		...mapMutations(['changeRoom']),
 
-		showPopup() {
-			this.$popup.show('new-room-popup')
-			.then(payload => this.$store.dispatch('createNewRoom', payload.roomName));
+		async showPopup() {
+			const payload = await this.$popup.show('new-room-popup');
+			this.$store.dispatch('createNewRoom', payload.roomName)
 		}
 	}
 }
