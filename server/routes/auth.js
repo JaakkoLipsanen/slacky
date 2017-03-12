@@ -8,7 +8,7 @@ const db = require('../database');
 authRouter.post('/register', authentication.register);
 authRouter.post('/login', authentication.login);
 authRouter.post('/logout', authentication.logout);
-authRouter.post('/user', authentication.loggedInUser);
+authRouter.post('/user', authentication.getLoggedInUser);
 
 authRouter.post('/validate-credentials', async (req, res) => { // asks whether credientials are correct, but does not login
 	try {
