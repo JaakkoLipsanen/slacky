@@ -1,7 +1,12 @@
-import axios from 'axios';
+import _axios from 'axios';
+const axios = _axios.create({
+	baseURL: (process.env.NODE_ENV === 'development') ?
+		undefined : // use the default (localhost) when running on dev
+		'https://slacky-api.herokuapp.com/' // TODO: does this work?
+});
 
 export default {
-	async login(userCredentials) {	
+	async login(userCredentials) {
 		const response = await axios.post('/api/auth/login', userCredentials);
 		return response.data.user;
 	},
