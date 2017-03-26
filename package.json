@@ -1,6 +1,6 @@
 {
   "name": "slacky",
-  "description": "A Vue.js project",
+  "description": "Slack clone built with vuejs + expressjs",
   "version": "1.0.0",
   "author": "JaakkoLipsanen <jaakko.lipsanen@outlook.com>",
   "private": true,
