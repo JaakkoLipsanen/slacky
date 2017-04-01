@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize');
-
 module.exports = {
 	initialize() {
 		const sequelize = new Sequelize(process.env.DATABASE_URL, {
@@ -14,7 +13,7 @@ module.exports = {
 		});
 
 		sequelize.validateLength = (name, min, max) => (val) => {
-			if(val.length < min || val.length > max) 
+			if(val.length < min || val.length > max)
 				throw new Error(`${name} is too short or too long!`);
 		};
 

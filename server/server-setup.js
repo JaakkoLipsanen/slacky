@@ -13,16 +13,20 @@ const forceHTTPS = (app) => {
 
 // enable cross-origin requests
 const enableCORS = (app) => {
-	app.use(function (req, res, next) {
+	app.use((req, res, next) => {
 
-	    // Website you wish to allow to connect
-	    res.setHeader('Access-Control-Allow-Origin', 'flai.xyz');
+		// TODO: this atm allow all domains. Do I want to allow all domains to connect to the backend?
+		res.setHeader('Access-Control-Allow-Credentials', true);
+		res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+		res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, *');
 
-		// allow cookies with request (for sessions/auth)
-	    res.setHeader('Access-Control-Allow-Credentials', true);
-
-	    // Pass to next layer of middleware
-	    next();
+		if ('OPTIONS' == req.method) {
+			console.log("OPTIONS");
+			res.sendStatus(200);
+		} else {
+			next();
+		}
 	});
 };
 
@@ -34,11 +38,15 @@ exports.setup = (app) => {
 		forceHTTPS(app);
 	}
 
+	enableCORS(app);
+
 	app.use(bodyParser.json()); // for parsing application/json
 	app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 	// public folders
 //	app.use(express.static('public'));
+
+	// TODO: remove
 	app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css'))); // so that '/css/bootstrap.min.js' works
 
 	// sets up hot-reloading etc
