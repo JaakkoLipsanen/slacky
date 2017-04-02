@@ -18,7 +18,8 @@
 		"dev-server": "cd server && yarn run dev",
 		"dev-client": "cd client && yarn run dev",
 
-		"deploy-server": "./deploy/deploy-heroku.sh"
+		"deploy-server": "./deploy/deploy-server-heroku.sh",
+		"deploy-client": "./deploy/deploy-client-ghpages.sh"
 	},
 
 	"dependencies": {
