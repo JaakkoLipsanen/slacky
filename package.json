@@ -16,7 +16,9 @@
 
 		"dev": "concurrently \"yarn run dev-server\" \"yarn run dev-client\"",
 		"dev-server": "cd server && yarn run dev",
-		"dev-client": "cd client && yarn run dev"
+		"dev-client": "cd client && yarn run dev",
+
+		"deploy-server": "./deploy/deploy-heroku.sh"
 	},
 
 	"dependencies": {
