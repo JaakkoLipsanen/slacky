@@ -1,8 +1,9 @@
 import _axios from 'axios';
+import config from './config';
+
 const axios = _axios.create({
-	baseURL: (process.env.NODE_ENV === 'development') ?
-		undefined : // use the default (localhost) when running on dev
-		'https://slacky-api.herokuapp.com/' // TODO: does this work?
+	baseURL: config.SERVER_URL,
+	withCredentials: true, // send credentials along on all requests
 });
 
 export default {
