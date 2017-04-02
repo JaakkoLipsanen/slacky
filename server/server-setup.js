@@ -22,7 +22,6 @@ const enableCORS = (app) => {
 		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, *');
 
 		if ('OPTIONS' == req.method) {
-			console.log("OPTIONS");
 			res.sendStatus(200);
 		} else {
 			next();
