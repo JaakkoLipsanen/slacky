@@ -3,7 +3,7 @@ const config = require('./webpack.base.config'); // extend the base config
 
 config.entry = ['babel-polyfill','./main.js'];
 config.devtool = false;
-config.performance = { hints: "error" };
+config.performance = { hints: "warning" };
 
 // http://vue-loader.vuejs.org/en/workflow/production.html
 config.plugins = (config.plugins || []).concat([

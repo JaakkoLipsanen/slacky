@@ -6,7 +6,7 @@
 	"private": true,
 
 	"scripts": {
-		"build": "cross-env NODE_ENV=production webpack -p --config config/webpack.production.config.js",
+		"build": "cross-env NODE_ENV=production webpack -p --config config/webpack.production.config.js --progress",
 		"dev": "webpack-dev-server --inline --hot --config config/webpack.dev.config.js"
 	},
 
