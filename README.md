@@ -1,4 +1,5 @@
 ## slack clone
+[![Build Status](https://travis-ci.org/JaakkoLipsanen/slacky.svg?branch=master)](https://travis-ci.org/JaakkoLipsanen/slacky)
 
 [**You can try it here!**](https://slack-v2.herokuapp.com)
 
