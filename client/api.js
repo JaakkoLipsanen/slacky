@@ -1,7 +1,13 @@
-import axios from 'axios';
+import _axios from 'axios';
+import config from './config';
+
+const axios = _axios.create({
+	baseURL: config.SERVER_URL,
+	withCredentials: true, // send credentials along on all requests
+});
 
 export default {
-	async login(userCredentials) {	
+	async login(userCredentials) {
 		const response = await axios.post('/api/auth/login', userCredentials);
 		return response.data.user;
 	},

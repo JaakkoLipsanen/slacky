@@ -17,11 +17,11 @@ const createMessage = async (io, roomName, sender, messageText) => {
 		});
 
 		const createdMessage = await db.Message.create({ roomId: room.dataValues.id, senderId: user.dataValues.id, text: messageText });
-		io.emit('messages', { 
-			action: 'create', 
-			room: roomName, 
-			sender: sender, 
-			timestamp: createdMessage.timestamp, 
+		io.emit('messages', {
+			action: 'create',
+			room: roomName,
+			sender: sender,
+			timestamp: createdMessage.timestamp,
 			message: messageText
 		});
 	}

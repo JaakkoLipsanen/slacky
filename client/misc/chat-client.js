@@ -1,4 +1,5 @@
 import api from '../api';
+import config from '../config';
 
 // TODO: ChatStore? as a child store to the main one?
 export default class ChatClient {
@@ -82,15 +83,15 @@ export default class ChatClient {
 			api.openConnection()
 			.then(response => {
 
-				const socket = io.connect();
+				const socket = io.connect(config.SERVER_URL);
 				const client = new ChatClient(socket, { rooms: response.data.rooms });
 
 				socket.on('connect_error', err => reject(err));
-				socket.on('connect', () => { 
+				socket.on('connect', () => {
 					resolve({ chatClient: client, user: response.data.user });
 				});
-			}) 
+			})
 			.catch(err => reject(err));
 		});
-	}	
+	}
 };

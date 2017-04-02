@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
   output: {
-    path: path.resolve(__dirname, '../client/dist'),
+    path: path.resolve(__dirname, '../dist'),
     publicPath: '/', // build.js will be available on '/'
     filename: 'build.js'
   },

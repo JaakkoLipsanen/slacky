@@ -11,21 +11,34 @@ const forceHTTPS = (app) => {
 	});
 };
 
+// enable cross-origin requests
+const enableCORS = (app) => {
+	app.use((req, res, next) => {
+
+		// TODO: this atm allow all domains. Do I want to allow all domains to connect to the backend?
+		res.setHeader('Access-Control-Allow-Credentials', true);
+		res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+		res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, *');
+
+		if ('OPTIONS' == req.method) {
+			res.sendStatus(200);
+		} else {
+			next();
+		}
+	});
+};
+
 exports.setup = (app) => {
 	app.set('port', process.env.PORT || 3000);
-	
+
 	app.isProduction = (app.get('env') === 'production');
 	if(app.isProduction) {
 		forceHTTPS(app);
 	}
 
+	enableCORS(app);
+
 	app.use(bodyParser.json()); // for parsing application/json
 	app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
-	// public folders
-//	app.use(express.static('public')); 
-	app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css'))); // so that '/css/bootstrap.min.js' works
-
-	// sets up hot-reloading etc
-	require('./webpack-setup').setup(app);
 };

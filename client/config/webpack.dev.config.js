@@ -2,24 +2,27 @@ const webpack = require('webpack');
 const config = require('./webpack.base.config'); // extend the base config
 
 config.entry = [
-  'webpack/hot/dev-server',
-  'webpack-hot-middleware/client',
-  'babel-polyfill',
-  './client/main.js',
+	'babel-polyfill',
+	'./main.js',
 ];
 
-config.devtool = '#cheap-module-eval-source-map';
+config.devtool = '#source-map';
 config.devServer = {
-  historyApiFallback: true,
-  noInfo: true
+	historyApiFallback: true,
+	noInfo: true,
+
+	publicPath: "/",
+	contentBase: "./",
+	hot: true
 };
 config.performance = { hints: false };
 
 // http://vue-loader.vuejs.org/en/workflow/production.html
 config.plugins = (config.plugins || []).concat([
 	new webpack.DefinePlugin({
-	   'process.env': {
-		   NODE_ENV: '"development"'
+		'process.env': {
+			NODE_ENV: JSON.stringify('development'),
+			SERVER_URL: JSON.stringify('http://localhost:3000')
 		}
 	}),
 	new webpack.HotModuleReplacementPlugin(),
