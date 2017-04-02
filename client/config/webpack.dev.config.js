@@ -3,7 +3,7 @@ const config = require('./webpack.base.config'); // extend the base config
 
 config.entry = [
 	'babel-polyfill',
-	'./client/main.js',
+	'./main.js',
 ];
 
 config.devtool = '#source-map';
@@ -12,7 +12,7 @@ config.devServer = {
 	noInfo: true,
 
 	publicPath: "/",
-	contentBase: "./client",
+	contentBase: "./",
 	hot: true
 };
 config.performance = { hints: false };
