@@ -9,7 +9,7 @@ export default class ChatClient {
 		this.isConnected = true;
 
 		this.rooms = data.rooms; // TODO: move this to store somehow :/ ?
-	//  this.users = [] ?
+	//	this.users = [] ?
 
 		socket.on('messages', payload => this._onMessageReceived(payload));
 		socket.on('rooms', payload => this._onRoomMessageReceived(payload));
@@ -73,7 +73,7 @@ export default class ChatClient {
 		if(payload.action === 'create') {
 			this.rooms.push(payload.room);
 		}
-	//  else if(payload.action === 'delete') // todo?
+	//	else if(payload.action === 'delete') // todo?
 	}
 
 	static openConnection() {

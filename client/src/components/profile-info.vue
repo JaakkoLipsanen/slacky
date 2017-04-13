@@ -18,7 +18,6 @@ export default {
 	methods: {
 		getProfilePic: user => profilePicCache.get(user),
 		logout() {
-
 			const redirectToLoginPage = () => {
 				this.$router.redirect('Login')
 				.then(() => this.$store.commit('resetState')) // reset state only after page has faded out
