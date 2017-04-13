@@ -11,16 +11,16 @@ Vue.mixin({ // defines this.$popup in all vue components..
 	computed: { $popup() { return this.$root._popup; } }
 });
 
-import NewRoomPopup from './components/new-room-popup.vue';
+import NewRoomPopup from '../components/new-room-popup.vue';
 Vue.component('new-room-popup', NewRoomPopup);
 
 export default {
 	name: 'popup',
-	data() { 
-		return { 
-			currentPopup: null, 
+	data() {
+		return {
+			currentPopup: null,
 			currentPromise: null
-		} 
+		}
 	},
 
 	beforeCreate() {
