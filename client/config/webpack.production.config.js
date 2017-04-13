@@ -13,11 +13,11 @@ config.plugins = (config.plugins || []).concat([
 			SERVER_URL: JSON.stringify("https://slacky-api.herokuapp.com/")
 		}
 	}),
+
 	new webpack.optimize.UglifyJsPlugin({
-		compress: {
-			warnings: false
-		}
+		compress: { warnings: false }
 	}),
+
 	new webpack.LoaderOptionsPlugin({
 		minimize: true
 	}),

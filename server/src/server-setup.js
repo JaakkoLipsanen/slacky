@@ -21,11 +21,12 @@ const enableCORS = (app) => {
 		res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, *');
 
-		if ('OPTIONS' == req.method) {
+		if (req.method === 'OPTIONS') {
 			res.sendStatus(200);
-		} else {
-			next();
+			return;
 		}
+
+		next();
 	});
 };
 

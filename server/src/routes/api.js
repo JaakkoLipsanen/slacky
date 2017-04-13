@@ -13,24 +13,25 @@ apiRouter.get('/user/:username', async (req, res) => {
 
 		res.json({ user: user });
 	}
-	catch(err) { console.error("api.get(user) error!", err); res.status(401).send(); }
+	catch(err) { console.error("api.get(user) error!", err); res.status(500).send(); }
 });
 
-apiRouter.post('/connection', authentication.requireAuthenticated, async (req, res) => {	
+apiRouter.post('/connection', authentication.requireAuthenticated, async (req, res) => {
 	try{
-		const rooms = await db.Room.findAll({ 
-			include: [{ 
+		// send the current data (= rooms since rooms contains all the data atm) in the response
+		const rooms = await db.Room.findAll({
+			include: [{
 				model: db.Message, // include messages
-				include: [{ 
+				include: [{
 					model: db.User, as: 'sender' // include sender to all messages
-				}] 
+				}]
 			}],
-			order: [[db.Message, 'timestamp']] // order ascending by time 
+			order: [[db.Message, 'timestamp']] // order ascending by time
 		});
 
 		res.json({ user: req.user, rooms: rooms });
 	}
-	catch(err) { console.error("Error on establishing connection", err); res.status(401).send(err); }
+	catch(err) { console.error("Error on establishing connection", err); res.status(500).send(err); }
 });
 
 const authRouter = require('./auth.js');

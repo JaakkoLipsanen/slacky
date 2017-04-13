@@ -6,6 +6,7 @@ config.entry = [
 	'./src',
 ];
 
+config.performance = { hints: false };
 config.devtool = '#source-map';
 config.devServer = {
 	historyApiFallback: true,
@@ -15,7 +16,6 @@ config.devServer = {
 	contentBase: "./public",
 	hot: true
 };
-config.performance = { hints: false };
 
 // http://vue-loader.vuejs.org/en/workflow/production.html
 config.plugins = (config.plugins || []).concat([

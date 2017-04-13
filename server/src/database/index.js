@@ -1,6 +1,8 @@
 const sequelize = require('./sequelize-setup').initialize();
 const models = require('./models').get(sequelize);
 
+// TODO: create session table as well automatically (used in auth session storage)
+
 // syncs the tables to the db. force: false doesn't drop the table if it exists
 sequelize.sync({ force: false }); //
 

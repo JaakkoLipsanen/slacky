@@ -1,7 +1,7 @@
 const socketio = require('socket.io');
 const db = require('./database');
 
-// TODO: A: refactor this to have only depth of 1 and B: could these checks be done on db-level?
+// TODO: could these checks be done on db-level?
 const createMessage = async (io, roomName, sender, messageText) => {
 	try {
 		const room = await db.Room.findOne({

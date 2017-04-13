@@ -1,8 +1,8 @@
 const db = require('./../database');
-const passportHelper = require('./passport-helper'); 
+const passportHelper = require('./passport-helper');
 
 module.exports = {
-	setup(app) {	
+	setup(app) {
 		require('./session-setup').setup(app);
 		passportHelper.setup(app); // log in logic is in here
 	},
@@ -18,19 +18,23 @@ module.exports = {
 			const userExists = await db.User.findOne({
 				where: { username: req.body.username }
 			});
-			
+
 			if(userExists) {
 				// todo: should redirect to login function above?
 				return res.status(401).json({ error: "Username already taken"});
 			}
 
-			const createdUser = await db.User.createAndHashPassword({ username: req.body.username, password: req.body.password })
+			const createdUser = await db.User.createAndHashPassword({
+				username: req.body.username,
+				password: req.body.password
+			});
+
 			if(!createdUser) {
 				return res.status(500).json({ error: "Error creating a new user" });
 			}
 
 			req.login(createdUser, err => {
-				if (err) { return next(err); }		
+				if (err) { return next(err); }
 
 				console.log("Registeration succesful", "User:", req.body.username);
 				return res.json({ user: createdUser });
