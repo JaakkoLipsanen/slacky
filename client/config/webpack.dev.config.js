@@ -3,7 +3,7 @@ const config = require('./webpack.base.config'); // extend the base config
 
 config.entry = [
 	'babel-polyfill',
-	'./main.js',
+	'./src/main.js',
 ];
 
 config.devtool = '#source-map';

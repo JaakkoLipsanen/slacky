@@ -60,7 +60,6 @@ export default class ChatClient {
 			return;
 		}
 
-		console.log(this);
 		const room = this.rooms.find(room => room.name === payload.room);
 		if(!room) {
 			console.error("Message received, but room was not found", payload.room, payload.message);
