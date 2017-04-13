@@ -2,7 +2,7 @@
 	<div id='app'>
 		<template v-if="$store.state.isConnected">
 			<Sidebar class='sidebar'></Sidebar>
-			<ChatArea class='chat-area'></ChatArea>
+			<ChatArea v-if="$store.state.currentRoom != null" class='chat-area'></ChatArea>
 		</template>
 	</div>
 </template>
@@ -30,8 +30,8 @@ export default {
 				// or has logged out, redirect to the login page
 				this.$router.redirect('Login', { errorMessage: "Please log in" });
 				return;
-			}	
-			
+			}
+
 			console.error("Unknown error in establishing connection", err);
 		});
 	},
@@ -48,8 +48,8 @@ export default {
 $sidebar-width: 250px;
 $sidebar-padding: 15px;
 .sidebar {
-	width: $sidebar-width; 
-	position: fixed; 
+	width: $sidebar-width;
+	position: fixed;
 	height: 100%;
 
 	padding-left: $sidebar-padding;
@@ -73,6 +73,6 @@ $chat-area-padding: 30px;
 	.chat-area {
 		padding-left: $chat-area-padding;
 	}
-} 
+}
 
 </style>
