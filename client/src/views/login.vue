@@ -6,7 +6,7 @@
 
 			<input class="username-input" :class="usernameInputClasses" v-model="username" type="text" placeholder="Enter your username" @keyup="usernameChanged" ref="usernameInput" autocomplete="off" autofocus>
 			<input class="password-input" :class="passwordInputClasses" v-model="password" type="password" placeholder="Enter password" @keyup="passwordChanged" @keydown.enter="login" ><br>
-						
+
 			<button class="enter-button" :disabled="!passwordMatches" v-on:click="login">{{ enterButtonText }}</button>
 		</div>
 	</div>
@@ -14,8 +14,8 @@
 
 <script>
 
-import api from './api';
-import identicon from './misc/identicon';
+import api from '../api';
+import identicon from '../misc/identicon';
 
 const UsernameState = {
 	Invalid: 0,
@@ -32,7 +32,7 @@ const PasswordState = {
 export default {
 	name: 'login',
 	data() {
-		return {			
+		return {
 			username: "",
 			usernameState: UsernameState.Invalid,
 
@@ -48,9 +48,9 @@ export default {
 	},
 
 	computed: {
-		isUsernameValid() {	
+		isUsernameValid() {
 			const MinLength = 4;
-			const MaxLength = 13;	
+			const MaxLength = 13;
 			return this.username.length >= MinLength && this.username.length <= MaxLength && (/^[a-zA-Z0-9-_]+$/).test(this.username); // alphanumerics and _ -
 		},
 
@@ -74,14 +74,14 @@ export default {
 
 			return this.isUsernameValid && this.isPasswordValid;
 		},
-		
+
 		enterButtonText() {
 			return this.usernameState === UsernameState.Exists ? "Log in to Slacky" : "Register to Slacky";
 		}
 	},
 
-	methods: {	
-		showError(err) { 
+	methods: {
+		showError(err) {
 			if(!err.response) {
 				this.errorMessage = err;
 				return;
@@ -99,7 +99,7 @@ export default {
 			try {
 				const user = await api.getUser(this.username)
 				this.usernameState = user ? UsernameState.Exists : UsernameState.New;
-				
+
 				// update the generated profile pic (which is based on username hash)
 				identicon.generate(this.$refs.identicon, this.username);
 			}
@@ -122,8 +122,8 @@ export default {
 			catch(err) { this.showErr(err); }
 		},
 
-		login(event) {		
-			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;			
+		login(event) {
+			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
 			loginFunction({
 				username: this.username,
 				password: this.password
@@ -159,7 +159,7 @@ $invalid-value-color: rgb(222, 32, 32);
 
 		font-size: 20px;
 		border: 2px solid rgb(192, 192, 172);
-		border-radius: 4px;	
+		border-radius: 4px;
 	}
 }
 
@@ -194,7 +194,7 @@ $button-base-color: palegreen;
 	background: $button-base-color;
 	font-size: 24px;
 	outline: none;
-	
+
 	border: none;
 	border-radius: 4px;
 
@@ -213,17 +213,17 @@ $button-base-color: palegreen;
 }
 
 .error-message {
-	position: absolute; 
-	top: calc(50% - 92px);  
+	position: absolute;
+	top: calc(50% - 92px);
 
 	font-size: 20px;
-	font-weight: 600; 
+	font-weight: 600;
 	color: $invalid-value-color;
 }
 
 .generated-profile-pic {
-	position: absolute; 
-	left: calc(50% - #{$form-width / 2} - 4px); 
+	position: absolute;
+	left: calc(50% - #{$form-width / 2} - 4px);
 	transform: translateX(-100%);
 	top: calc(50% - 68px);
 

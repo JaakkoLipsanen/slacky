@@ -9,8 +9,8 @@
 
 <script>
 
-import ChatArea from './components/chat-area.vue';
-import Sidebar from './components/sidebar.vue';
+import ChatArea from '../components/chat-area.vue';
+import Sidebar from '../components/sidebar.vue';
 
 export default {
 	name: 'app',

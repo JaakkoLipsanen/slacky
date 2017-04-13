@@ -16,7 +16,7 @@
 import App from './app.vue'
 import Login from './login.vue'
 import Popup from './popup.vue'
-import api from './api';
+import api from '../api';
 
 import Vue from 'vue';
 Vue.mixin({ // defines this.$router in all vue components..
@@ -26,17 +26,17 @@ Vue.mixin({ // defines this.$router in all vue components..
 export default {
 	name: 'router',
 	components: {
-		App, 
+		App,
 		Login,
 		Popup
 	},
 
-	data() { 
-		return { 
-			currentView: '', 
-			pageParams: { }, 
+	data() {
+		return {
+			currentView: '',
+			pageParams: { },
 			_transitionEndedCallback: null // mehhhh... read why below in redirect(..)
-		} 
+		}
 	},
 
 	async beforeCreate() {
@@ -51,7 +51,7 @@ export default {
 	},
 
 	methods: {
-		afterTransitionLeave() { 
+		afterTransitionLeave() {
 			if(this._transitionEndedCallback) {
 				this._transitionEndedCallback();
 			}
