@@ -12,7 +12,7 @@ config.devServer = {
 	noInfo: true,
 
 	publicPath: "/",
-	contentBase: "./",
+	contentBase: "./public",
 	hot: true
 };
 config.performance = { hints: false };
