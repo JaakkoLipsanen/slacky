@@ -16,6 +16,7 @@
 import App from './app.vue'
 import Login from './login.vue'
 import Popup from './popup.vue'
+import Loading from './loading.vue'
 import api from '../api';
 
 import Vue from 'vue';
@@ -28,12 +29,13 @@ export default {
 	components: {
 		App,
 		Login,
+		Loading,
 		Popup
 	},
 
 	data() {
 		return {
-			currentView: '',
+			currentView: 'Loading',
 			pageParams: { },
 			_transitionEndedCallback: null // mehhhh... read why below in redirect(..)
 		}
