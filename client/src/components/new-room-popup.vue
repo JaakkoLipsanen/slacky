@@ -33,6 +33,8 @@ export default {
 </script>
 
 <style lang="scss">
+$accept-button-color: palegreen;
+$cancel-button-color: desaturate($accept-button-color, 100);
 
 input {
 	width: 100%;
@@ -56,32 +58,36 @@ button {
 	bottom: 0px;
 	vertical-align: bottom;
 
+	transition: background 0.2s, opacity 0.2s;
+	outline: none;
 	border: none;
 	border-radius: 4px;
 	font-size: 20px;
+
 }
 
-$button-base-color: palegreen;
-.create-button {
-	transition: background 0.2s, opacity 0.2s;
-	background-color: $button-base-color;
-
+@mixin button-color($base-color) {
+	background: $base-color;
 	&:hover:not(:disabled) {
-		background: darken($button-base-color, 6);
+		background: darken($base-color, 6);
 	}
 
 	&:active:not(:disabled) {
-		background: darken($button-base-color, 15);
+		background: darken($base-color, 15);
 	}
 
 	&:disabled {
 		opacity: 0.65;
-		background: desaturate($button-base-color, 40);
+		background: desaturate($base-color, 40);
 	}
 }
 
+.create-button {
+	@include button-color($accept-button-color);
+}
+
 .cancel-button {
-	background-color: desaturate($button-base-color, 100);
+	@include button-color($cancel-button-color);
 }
 
 .button-container {
