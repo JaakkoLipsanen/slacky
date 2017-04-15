@@ -1,5 +1,5 @@
 <template>
-	<transition v-if="currentPopup != null">
+	<transition name="popup-fade" v-if="currentPopup != null">
 		<component @success="onSuccess" @cancel="onCancel" :is="currentPopup"></component>
 	</transition>
 </template>
@@ -19,7 +19,9 @@ export default {
 	data() {
 		return {
 			currentPopup: null,
-			currentPromise: null
+			currentPromise: null,
+
+			isVisible: false
 		}
 	},
 
@@ -32,6 +34,8 @@ export default {
 			return new Promise((resolve, reject) => {
 				this.currentPromise = { resolve: resolve, reject: reject };
 				this.currentPopup = popupName;
+
+				this.isVisible = true;
 			});
 		},
 
@@ -40,17 +44,32 @@ export default {
 		close() {
 			this.currentPopup = null;
 			this.currentPromise = null;
+
+			this.isVisible = false;
 		},
 
 		onSuccess(data) {
-			this.currentPromise.resolve(data);
+			this.currentPromise.resolve({ success: true, payload: data });
 			this.close();
 		},
 
 		onCancel() {
-			this.currentPromise.reject();
+			this.currentPromise.resolve({ success: false });
 			this.close();
 		}
 	}
 }
 </script>
+
+
+<style lang='scss' scoped>
+
+$popup-fade-length: 0.15s;
+.popup-fade-enter-active, .popup-fade-leave-active {
+	transition: opacity $popup-fade-length ease;
+}
+.popup-fade-enter, .popup-fade-leave-to, .component-popup-fade-leave-active {
+	opacity: 0;
+}
+
+</style>

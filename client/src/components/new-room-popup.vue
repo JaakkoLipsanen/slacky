@@ -1,10 +1,10 @@
 <template>
 	<div class="popup-background">
 		<div class="popup">
-			<input ref="roomName" type='text' placeholder="Enter name for the room" style="display: block" autofocus>
+			<input ref="roomName" type='text' v-model="roomName" placeholder="Enter name for the room" style="display: block" autofocus>
 
 			<div class="button-container">
-				<button class="create-button" @click="$emit('success', { roomName: $refs.roomName.value })">Create</button> 
+				<button class="create-button" :disabled="!isInputValid" @click="$emit('success', { roomName: $refs.roomName.value })">Create</button>
 				<button class="cancel-button" @click="$emit('cancel')">Cancel</button>
 			</div>
 		</div>
@@ -15,6 +15,20 @@
 
 export default {
 	name: 'new-room-popup',
+	data() {
+		return {
+			roomName: ""
+		};
+	},
+
+	computed: {
+		isInputValid() {
+			const MinLength = 3;
+			const MaxLength = 18;
+
+			return this.roomName.length >= MinLength && this.roomName.length <= MaxLength;
+		}
+	}
 }
 </script>
 
@@ -27,7 +41,7 @@ input {
 
 	font-size: 20px;
 	border: 2px solid rgb(192, 192, 172);
-	border-radius: 4px;	
+	border-radius: 4px;
 	padding-left: 4px; /* padding-left causes the text inside the textarea to be padded */
 }
 
@@ -49,7 +63,21 @@ button {
 
 $button-base-color: palegreen;
 .create-button {
+	transition: background 0.2s, opacity 0.2s;
 	background-color: $button-base-color;
+
+	&:hover:not(:disabled) {
+		background: darken($button-base-color, 6);
+	}
+
+	&:active:not(:disabled) {
+		background: darken($button-base-color, 15);
+	}
+
+	&:disabled {
+		opacity: 0.65;
+		background: desaturate($button-base-color, 40);
+	}
 }
 
 .cancel-button {
@@ -71,7 +99,7 @@ $button-base-color: palegreen;
 	left: 50%;
 
 	transform: translate(-50%, -50%);
-	
+
 	background-color: white;
 	border-radius: 10px;
 
