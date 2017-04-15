@@ -91,8 +91,8 @@ export default {
 		},
 
 		async usernameChanged(event) {
+			this.usernameState = UsernameState.Invalid;
 			if(!this.isUsernameValid) {
-				this.usernameState = UsernameState.Invalid;
 				return;
 			}
 
@@ -109,9 +109,10 @@ export default {
 
 		isNewPasswordValid: (pw) => pw.length >= 6,
 		async passwordChanged(event) {
+			this.passwordState = PasswordState.Invalid;
+
 			const isPasswordValid = this.isNewPasswordValid(this.password);
 			if(!isPasswordValid) {
-				this.passwordState = PasswordState.Invalid;
 				return;
 			}
 
@@ -214,7 +215,9 @@ $button-base-color: palegreen;
 
 .error-message {
 	position: absolute;
-	top: calc(50% - 92px);
+	top: 25%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 
 	font-size: 20px;
 	font-weight: 600;
