@@ -61,7 +61,7 @@ export default {
 		async onSubmit(username, password) {
 			if(this.loginType === LoginType.SignIn) {
 				const result = await this.login(username, password);
-				return result
+				return result;
 			}
 			else {
 				return await this.register(username, password);
@@ -73,12 +73,13 @@ export default {
 				LoginType.Register : LoginType.SignIn;
 
 			// do i want to reset the username and password fields?
-		//	this.$refs.signInForm.reset();
+			this.$refs.signInForm.resetErrors();
 		},
 
 		async login(username, password) {
+
+			return { success: false, error: { password: true } };
 			const result = await api.login({ username, password });
-			return result;
 		},
 
 		// TODO: in the backend, separate register and login to different methods

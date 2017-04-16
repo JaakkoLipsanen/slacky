@@ -6,7 +6,7 @@
 		<input
 			v-model="username"
 			ref="usernameInput"
-			@keyup="usernameChanged"
+			@input="usernameChanged"
 			placeholder="Enter your username"
 			type="text"
 			autocomplete="off"
@@ -16,7 +16,8 @@
 		<input
 			v-model="password"
 			ref="passwordInput"
-			@keyup="passwordChanged"
+			@input="passwordChanged"
+			@keydown.enter="submit"
 			placeholder="Enter password"
 			type="password">
 
@@ -46,6 +47,8 @@ export default {
 
 	methods: {
 		async usernameChanged() {
+			this._removeInvalidation(this.$refs.usernameInput);
+
 			this.usernameValid = await Promise.resolve(this.validateUsername(this.username));
 			if(this.usernameValid) {
 				// TODO: once I allow users to change their profile pic, I probably
@@ -55,15 +58,19 @@ export default {
 		},
 
 		async passwordChanged() {
+			this._removeInvalidation(this.$refs.passwordInput);
 			this.passwordValid = await Promise.resolve(this.validatePassword(this.username, this.password));
 		},
 
 		async submit() {
 			const result = await Promise.resolve(this.onSubmit(this.username, this.password));
 			if(!result.success) {
-				// if error was password, then invalidate password field.
-				// if error was username, then invalidate user field
-				// etc
+				if(result.error.username) {
+					this._invalidate(this.$refs.usernameInput, true);
+				}
+				else if(result.error.password) {
+					this._invalidate(this.$refs.passwordInput);
+				}
 			}
 		},
 
@@ -71,7 +78,20 @@ export default {
 			this.username = this.password = "";
 			this.usernameValid = this.passwordValid = false;
 
+			this.resetErrors();
+		},
 
+		resetErrors() {
+			this._removeInvalidation(this.$refs.usernameInput);
+			this._removeInvalidation(this.$refs.passwordInput);
+		},
+
+		_invalidate(input) {
+			$(input).toggleClass("errored", true);
+		},
+
+		_removeInvalidation(input) {
+			$(input).toggleClass("errored", false);
 		},
 
 		_updateIdenticon() {
@@ -86,32 +106,34 @@ export default {
 /** So.... I decided to just absolutely position pretty much every element in here. Too much hassle otherwise :P **/
 
 $input-height: 42px;
-$invalid-value-color: rgb(222, 32, 32);
+$transition-length: 0.35s;
 
 .sign-in-form {
 	input {
 		width: 100%;
 		height: $input-height;
 		padding-left: 4px; /* padding-left causes the text inside the textarea to be padded */
+		margin-bottom: 8px;
 		position: relative;
 
 		box-shadow: none;
 		outline: none;
 
-		font-size: 20px;
 		border: 2px solid rgb(192, 192, 172);
 		border-radius: 4px;
+		font-size: 20px;
 
-		margin-bottom: 8px;
+		transition: border-color $transition-length;
+		&.errored {
+			border-color: red;
+		}
 	}
 }
 
-
 .generated-profile-pic, .enter-button {
-	transition: visibility 0.35s, opacity 0.35s, border-color 0.35s, background 0.35s;
+	transition: opacity $transition-length, background $transition-length;
 
 	&.visible {
-		visibility: visible;
 		opacity: 1;
 	}
 }
@@ -128,6 +150,8 @@ $button-base-color: palegreen;
 
 	border: none;
 	border-radius: 4px;
+
+	transition: opacity $transition-length, background $transition-length;
 
 	&:hover:not(:disabled) {
 		background: darken($button-base-color, 6);
@@ -149,14 +173,17 @@ $button-base-color: palegreen;
 	transform: translateX(-100%);
 	top: calc(50% - 68px);
 
-	opacity: 1;
-
 	/* if the screen is too narrow, then show the profile pic on top of the forms */
 	@media (max-width: 520px) {
 		margin-left: 0px;
 		left: calc(50%);
 		top: calc(50% - 168px);
 		transform: translate(-50%);
+	}
+
+	transition: opacity $transition-length;
+	&.visible {
+		opacity: 1;
 	}
 
 	&:not(.visible) {
