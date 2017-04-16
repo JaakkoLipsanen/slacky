@@ -1,6 +1,6 @@
 <template>
 	<div class="sign-in-form">
-		<canvas  ref="identicon" width="106" height="106" class="generated-profile-pic" :class="{ visible: isUsernameValid }"></canvas>
+		<canvas ref="identicon" width="106" height="106" class="generated-profile-pic" :class="{ visible: usernameValid }"></canvas>
 
 		<!-- Username -->
 		<input
@@ -20,43 +20,61 @@
 			placeholder="Enter password"
 			type="password">
 
-		<button class="enter-button" :disabled="!passwordMatches" v-on:click="submit">{{ submitText }}</button>
+		<button class="enter-button" :disabled="!usernameValid || !passwordValid" @click="submit">{{ submitText }}</button>
 	</div>
 </template>
 
 <script>
 
+import identicon from '../misc/identicon';
 import RoomList from './room-list.vue';
 import ProfileInfo from './profile-info.vue';
+
 export default {
 	name: 'sign-in-form',
+	props: ["validateUsername", "validatePassword", "onSubmit", "submitText"],
 
 	data() {
 		return {
 			username: "",
 			password: "",
 
-			usernameValid: true,
-			passwordValid: true,
+			usernameValid: false,
+			passwordValid: false,
 		}
 	},
 
-	props: ["validateUsername", "validatePassword", "onSubmit", "submitText"],
 	methods: {
 		async usernameChanged() {
-			updateIdenticon();
 			this.usernameValid = await Promise.resolve(this.validateUsername(this.username));
+			if(this.usernameValid) {
+				// TODO: once I allow users to change their profile pic, I probably
+				// shouldn't update identicon but rather fetch the image from server
+				this._updateIdenticon();
+			}
 		},
 
 		async passwordChanged() {
 			this.passwordValid = await Promise.resolve(this.validatePassword(this.username, this.password));
 		},
 
-		submit() {
-			this.onSubmit(this.username, this.password);
+		async submit() {
+			const result = await Promise.resolve(this.onSubmit(this.username, this.password));
+			if(!result.success) {
+				// if error was password, then invalidate password field.
+				// if error was username, then invalidate user field
+				// etc
+			}
 		},
 
-		updateIdenticon() {
+		reset() {
+			this.username = this.password = "";
+			this.usernameValid = this.passwordValid = false;
+
+
+		},
+
+		_updateIdenticon() {
 			// update the generated profile pic (which is based on username hash)
 			identicon.generate(this.$refs.identicon, this.username);
 		}
@@ -67,20 +85,15 @@ export default {
 <style lang="scss">
 /** So.... I decided to just absolutely position pretty much every element in here. Too much hassle otherwise :P **/
 
-$form-width: 300px;
 $input-height: 42px;
 $invalid-value-color: rgb(222, 32, 32);
 
 .sign-in-form {
-	width: $form-width;
-	max-width: calc(100vw - 16px);
-	padding-top: calc(50vh - 60px);
-	margin: auto;
-
 	input {
 		width: 100%;
 		height: $input-height;
 		padding-left: 4px; /* padding-left causes the text inside the textarea to be padded */
+		position: relative;
 
 		box-shadow: none;
 		outline: none;
@@ -95,19 +108,13 @@ $invalid-value-color: rgb(222, 32, 32);
 
 
 .generated-profile-pic, .enter-button {
-	transition: visibility 0.5s, opacity 0.5s, border-color 0.6s, background 0.5s;
+	transition: visibility 0.35s, opacity 0.35s, border-color 0.35s, background 0.35s;
 
 	&.visible {
 		visibility: visible;
 		opacity: 1;
 	}
 }
-
-.generated-profile-pic {
-	opacity: 0;
-	visibility: hidden;
-}
-
 
 $button-base-color: palegreen;
 .enter-button {
@@ -138,15 +145,22 @@ $button-base-color: palegreen;
 
 .generated-profile-pic {
 	position: absolute;
-	left: calc(50% - #{$form-width / 2} - 4px);
+	margin-left: -4px;
 	transform: translateX(-100%);
 	top: calc(50% - 68px);
 
+	opacity: 1;
+
 	/* if the screen is too narrow, then show the profile pic on top of the forms */
 	@media (max-width: 520px) {
+		margin-left: 0px;
 		left: calc(50%);
 		top: calc(50% - 168px);
 		transform: translate(-50%);
+	}
+
+	&:not(.visible) {
+		opacity: 0;
 	}
 }
 

@@ -17,7 +17,7 @@ export default {
 		return response.data.user;
 	},
 
-	async logout(userCredentials) {
+	async logout() {
 		await axios.post('/api/auth/logout')
 	},
 

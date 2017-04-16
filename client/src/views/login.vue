@@ -1,10 +1,16 @@
 <template>
 	<div id='login-page'>
-		<SignInForm
-			:validate-username="validateUsername"
-			:validate-password="validatePassword"
-			:on-submit="onSubmit"
-			submit-text="Sign in to Slacky" />
+		<div class="form-container">
+			<SignInForm
+				ref="signInForm"
+				:validate-username="validateUsername"
+				:validate-password="validatePassword"
+				:on-submit="onSubmit"
+				:submit-text="submitButtonText" />
+
+			<a @click="switchFormType" class="switch-type-link">{{ switchTypeLinkText }}</a>
+		</div>
+
 	</div>
 </template>
 
@@ -13,14 +19,22 @@
 import api from '../api';
 import SignInForm from '../components/sign-in-form.vue';
 
+const LoginType = {
+	SignIn: 0,
+	Register: 1
+};
+
 export default {
 	name: 'login',
-	data() {
-		return { errorMessage: "" }
-	},
-
 	components: {
 		SignInForm
+	},
+
+	data() {
+		return {
+			loginType: LoginType.SignIn,
+			errorMessage: ""
+		};
 	},
 
 	mounted() {
@@ -28,42 +42,67 @@ export default {
 	},
 
 	methods: {
-		async validateUsername(username) {
+		validateUsername(username) {
 			const MinLength = 4;
 			const MaxLength = 13;
 			const Regex = (/^[a-zA-Z0-9-_]+$/);
 
-			return
-				this.username.length >= MinLength &&
-				this.username.length <= MaxLength &&
-				Regex.test(this.username);
+			return Boolean(
+				username.length >= MinLength &&
+				username.length <= MaxLength &&
+				Regex.test(username));
 		},
 
-		async validatePassword(username, password) {
+		validatePassword(username, password) {
 			const MinLength = 6;
-			return password >= MinLength;
+			return password.length >= MinLength;
 		},
 
 		async onSubmit(username, password) {
-		},
-
-		showError(err) {
-			if(!err.response) {
-				this.errorMessage = err;
-				return;
+			if(this.loginType === LoginType.SignIn) {
+				const result = await this.login(username, password);
+				return result
 			}
-
-			this.errorMessage = (err.response.data && err.response.data.error) ? err.response.data.error : "Error";
+			else {
+				return await this.register(username, password);
+			}
 		},
 
-		login(event) {
-			const loginFunction = (this.usernameState === UsernameState.New) ? api.register : api.login;
-			loginFunction({
-				username: this.username,
-				password: this.password
-			})
-			.then(() => this.$router.redirect('App'))
-			.catch(this.showError);
+		switchFormType() {
+			this.loginType = (this.loginType === LoginType.SignIn) ?
+				LoginType.Register : LoginType.SignIn;
+
+			// do i want to reset the username and password fields?
+		//	this.$refs.signInForm.reset();
+		},
+
+		async login(username, password) {
+			const result = await api.login({ username, password });
+			return result;
+		},
+
+		// TODO: in the backend, separate register and login to different methods
+		// (so that calling register doesnt authenticate). Also, login should
+		// automatically open connection and return the initial state.
+		// on succesful login, render a checkmark like this:
+		// http://codepen.io/drewbkoch/pen/ogyXEK maybe inside the login button? idk
+		async register(username, password) {
+			const result = await api.register({ username, password });
+			return result;
+		}
+	},
+
+	computed: {
+		submitButtonText() {
+			return this.loginType === LoginType.SignIn ?
+				"Sign in to Slacky" :
+				"Register to Slacky";
+		},
+
+		switchTypeLinkText() {
+			return this.loginType === LoginType.SignIn ?
+				"Don't have an account? Register here!" :
+				"Already registered? Sign in here!";
 		}
 	}
 }
@@ -71,5 +110,25 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+
+$form-width: 300px;
+.form-container {
+	width: $form-width;
+	margin: auto;
+
+	max-width: calc(100vw - 16px);
+	padding-top: calc(50vh - 60px);
+
+	text-align: center;
+
+	.switch-type-link {
+		display: block;
+		margin-top: 4px;
+
+		cursor: pointer;
+		text-decoration: none;
+		user-select: none;
+	}
+}
 
 </style>
