@@ -64,7 +64,7 @@ module.exports = {
 	},
 
 	requireAuthenticated(req, res, next) {
-		if (!req.user) return res.status(401).json( { type: 'auth', message: 'You must be logged in' });
+		if (!req.user) return res.status(401).json( { success: false, error: { type: 'auth', message: 'You must be logged in' } });
 		return next();
 	}
 };

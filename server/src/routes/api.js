@@ -29,7 +29,7 @@ apiRouter.post('/connection', authentication.requireAuthenticated, async (req, r
 			order: [[db.Message, 'timestamp']] // order ascending by time
 		});
 
-		res.json({ user: req.user, rooms: rooms });
+		res.json({ success: true, payload: { user: req.user, rooms: rooms } });
 	}
 	catch(err) { console.error("Error on establishing connection", err); res.status(500).send(err); }
 });

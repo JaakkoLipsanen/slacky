@@ -76,21 +76,27 @@ export default class ChatClient {
 	//	else if(payload.action === 'delete') // todo?
 	}
 
-	static openConnection() {
-		return new Promise((resolve, reject) => {
+	static async openConnection() {
+		const result = await api.openConnection();
+		if(result.success) {
+			const socket = io.connect(config.SERVER_URL);
+			const client = new ChatClient(socket, { rooms: result.payload.rooms });
 
-			api.openConnection()
-			.then(response => {
-
-				const socket = io.connect(config.SERVER_URL);
-				const client = new ChatClient(socket, { rooms: response.data.rooms });
-
-				socket.on('connect_error', err => reject(err));
-				socket.on('connect', () => {
-					resolve({ chatClient: client, user: response.data.user });
+			const waitForConnect = () => {
+				return new Promise((resolve, reject) => {
+					socket.on('connect_error', err => reject(err));
+					socket.on("connect", () => {
+						resolve({ success: true, payload: { chatClient: client, user: result.payload.user }});
+					});
 				});
-			})
-			.catch(err => reject(err));
-		});
+			};
+
+			try { return await waitForConnect(); }
+			catch(err) { /* return fail below */ }
+		}
+
+		console.log(result);
+		// todo: figure out precise reason why fail?
+		return { success: false, error: { type: "auth", message: "Could not open connection" } };
 	}
 };
