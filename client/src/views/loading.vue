@@ -1,6 +1,6 @@
 <template>
 	<div id='loading-page'>
-		<p>Waking up the server...</p>
+		<p>Waiting for the server...</p>
 	</div>
 </template>
 
@@ -12,7 +12,7 @@ export default {
 		// display the "Waking up the server.." text only after the time represented
 		// by ALLOWED_LATENCY, so that it is actually displayed only after
 		// unexpectedly long waiting
-		const ALLOWED_LATENCY = 300;
+		const ALLOWED_LATENCY = 800;
 		setTimeout(() => {
 			$("#loading-page p").css("opacity", 1);
 		}, ALLOWED_LATENCY);
@@ -26,6 +26,8 @@ export default {
 	$text-color: rgb(190, 190, 190);
 
 	#loading-page {
+		text-align: center;
+
 		p {
 			opacity: 0;
 			transition: opacity 0.3s;
