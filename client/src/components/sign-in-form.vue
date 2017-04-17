@@ -47,7 +47,7 @@ export default {
 
 	methods: {
 		async usernameChanged() {
-			this._removeInvalidation(this.$refs.usernameInput);
+			this._removeInvalidation("username");
 
 			this.usernameValid = await Promise.resolve(this.validateUsername(this.username));
 			if(this.usernameValid) {
@@ -58,20 +58,12 @@ export default {
 		},
 
 		async passwordChanged() {
-			this._removeInvalidation(this.$refs.passwordInput);
+			this._removeInvalidation("password");
 			this.passwordValid = await Promise.resolve(this.validatePassword(this.username, this.password));
 		},
 
 		async submit() {
-			const result = await Promise.resolve(this.onSubmit(this.username, this.password));
-			if(!result.success) {
-				if(result.error.username) {
-					this._invalidate(this.$refs.usernameInput, true);
-				}
-				else if(result.error.password) {
-					this._invalidate(this.$refs.passwordInput);
-				}
-			}
+			await Promise.resolve(this.onSubmit(this.username, this.password));
 		},
 
 		reset() {
@@ -82,16 +74,26 @@ export default {
 		},
 
 		resetErrors() {
-			this._removeInvalidation(this.$refs.usernameInput);
-			this._removeInvalidation(this.$refs.passwordInput);
+			this._removeInvalidation("username");
+			this._removeInvalidation("password");
 		},
 
-		_invalidate(input) {
-			$(input).toggleClass("errored", true);
+		invalidate(inputName) {
+			this._setInvalidation(inputName, true);
 		},
 
-		_removeInvalidation(input) {
-			$(input).toggleClass("errored", false);
+		_removeInvalidation(inputName) {
+			this._setInvalidation(inputName, false);
+		},
+
+		_setInvalidation(inputName, invalidated) {
+			if(inputName !== "username" && inputName !== "password") return;
+
+			const input = (inputName === "username") ?
+				this.$refs.usernameInput :
+				this.$refs.passwordInput;
+
+			$(input).toggleClass("errored", invalidated);
 		},
 
 		_updateIdenticon() {
@@ -177,7 +179,7 @@ $button-base-color: palegreen;
 	@media (max-width: 520px) {
 		margin-left: 0px;
 		left: calc(50%);
-		top: calc(50% - 168px);
+		top: calc(50% - 194px);
 		transform: translate(-50%);
 	}
 

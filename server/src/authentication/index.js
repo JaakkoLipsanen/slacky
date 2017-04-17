@@ -21,7 +21,13 @@ module.exports = {
 
 			if(userExists) {
 				// todo: should redirect to login function above?
-				return res.status(401).json({ error: "Username already taken"});
+				return res.status(401).json({
+					success: false,
+					error: {
+						type: "username",
+						message: "Username is already taken"
+					}
+				});
 			}
 
 			const createdUser = await db.User.createAndHashPassword({
@@ -30,14 +36,19 @@ module.exports = {
 			});
 
 			if(!createdUser) {
-				return res.status(500).json({ error: "Error creating a new user" });
+				return res.status(500).json({
+					success: false,
+					error: {
+						type: "unknown",
+						message: "Error creating a new user" }
+					});
 			}
 
 			req.login(createdUser, err => {
 				if (err) { return next(err); }
 
 				console.log("Registeration succesful", "User:", req.body.username);
-				return res.json({ user: createdUser });
+				return res.json({ success: true, payload: { user: createdUser } });
 			});
 		}
 		catch(err) { console.error("Registeration error", err); next(err); };

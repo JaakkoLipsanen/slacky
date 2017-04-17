@@ -1,6 +1,7 @@
 <template>
 	<div id='login-page'>
 		<div class="form-container">
+			<p ref="errorMessage" class="error-message hidden">{{ errorMessage }}</p>
 			<SignInForm
 				ref="signInForm"
 				:validate-username="validateUsername"
@@ -59,13 +60,7 @@ export default {
 		},
 
 		async onSubmit(username, password) {
-			if(this.loginType === LoginType.SignIn) {
-				const result = await this.login(username, password);
-				return result;
-			}
-			else {
-				return await this.register(username, password);
-			}
+			await this.authenticate(username, password);
 		},
 
 		switchFormType() {
@@ -73,23 +68,38 @@ export default {
 				LoginType.Register : LoginType.SignIn;
 
 			// do i want to reset the username and password fields?
+			this._hideError();
 			this.$refs.signInForm.resetErrors();
 		},
 
-		async login(username, password) {
-
-			return { success: false, error: { password: true } };
-			const result = await api.login({ username, password });
-		},
-
-		// TODO: in the backend, separate register and login to different methods
+		// EDIT: Do I want the following?
+		// in the backend, separate register and login to different methods
 		// (so that calling register doesnt authenticate). Also, login should
 		// automatically open connection and return the initial state.
 		// on succesful login, render a checkmark like this:
 		// http://codepen.io/drewbkoch/pen/ogyXEK maybe inside the login button? idk
-		async register(username, password) {
-			const result = await api.register({ username, password });
-			return result;
+		async authenticate(username, password) {
+			const loginAPI = (this.loginType === LoginType.SignIn) ? api.login : api.register;
+			const result = await loginAPI({ username, password });
+
+			if(result.success) {
+				this.$router.redirect('App');
+			}
+			else {
+				this._showError(result.error.message);
+
+				// result.error.type == "username" or "password"
+				this.$refs.signInForm.invalidate(result.error.type);
+			}
+		},
+
+		_showError(message) {
+			this.errorMessage = message;
+			$(this.$refs.errorMessage).toggleClass("hidden", false);
+		},
+
+		_hideError() {
+			$(this.$refs.errorMessage).toggleClass("hidden", true);
 		}
 	},
 
@@ -129,6 +139,19 @@ $form-width: 300px;
 		cursor: pointer;
 		text-decoration: none;
 		user-select: none;
+	}
+}
+
+.error-message {
+	position: absolute;
+	margin-top: -40px;
+	font-size: 20px;
+	color: red;
+	text-align: left;
+
+	transition: opacity 0.2s;
+	&.hidden {
+		opacity: 0;
 	}
 }
 
