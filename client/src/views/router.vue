@@ -44,12 +44,16 @@ export default {
 	async beforeCreate() {
 		this.$root._router = this;
 
-		// if the client is not logged in, then display login screen
-		try {
-			const user = await api.getCurrentUser()
-			this.currentView = user ? 'App' : 'Login';
+		// if the client is not logged in, then tryOpenConnection will fail
+		const result = await this.$store.dispatch('openConnection');
+		if(result.success) {
+			this.currentView = 'App';
 		}
-		catch(err) { console.error("Error on finding if user is logged in"); this.currentView = "Login"; }
+		else {
+			// specific reason could be determined by result.error.type,
+			// but most likely it's just that user isn't logged in
+			this.currentView = 'Login';
+		}
 	},
 
 	methods: {

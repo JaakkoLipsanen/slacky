@@ -83,6 +83,12 @@ export default {
 			const result = await loginAPI({ username, password });
 
 			if(result.success) {
+				const result = await this.$store.dispatch('openConnection');
+				if(!result.success) {
+					this._showError(result.error.message);
+					return;
+				}
+
 				this.$router.redirect('App');
 			}
 			else {

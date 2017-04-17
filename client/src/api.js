@@ -37,6 +37,6 @@ export default {
 
 	async openConnection(onNewMessage) {
 		const response = await axios.post('/api/connection');
-		return response;
+		return response.data;
 	}
 }
