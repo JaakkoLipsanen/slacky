@@ -9,21 +9,28 @@
 				<h4 class="message-text">{{ msg.text }}</h4>
 			</div>
 		</li>
+		<li v-for="group in messageGroups"></li>
 	</ul>
 </template>
 
 <script>
 
 import profilePicCache from '../misc/profile-pic-cache';
+import groupify from '../misc/groupify-messages';
+
 export default {
 
 	name: 'message-list',
 	computed: {
 
 		// why? see explanation below in the css
-		displayedMessages() { 
+		displayedMessages() {
 			return this.$store.state.currentRoom.messages.slice().reverse();
 		},
+
+		messageGroups() {
+			const groups = groupify.groupByDate(this.$store.state.currentRoom.messages.slice().reverse());
+		}
 	},
 
 	methods: {
