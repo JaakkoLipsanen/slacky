@@ -21,7 +21,8 @@ export default {
 	},
 
 	async logout() {
-		await axios.post('/api/auth/logout')
+		const response = await axios.post('/api/auth/logout');
+		return response;
 	},
 
 	// returns the logged in user

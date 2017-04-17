@@ -17,19 +17,16 @@ export default {
 
 	methods: {
 		getProfilePic: user => profilePicCache.get(user),
-		logout() {
-			const redirectToLoginPage = () => {
-				this.$router.redirect('Login')
-				.then(() => this.$store.commit('resetState')) // reset state only after page has faded out
-				.catch(err => console.log("Error on logout:", err));
+		async logout() {
+			const redirectToLoginPage = async () => {
+				await this.$router.redirect('Login');
+				this.$store.commit('resetState');
 			};
 
-			api.logout()
-			.then(() => redirectToLoginPage())
-			.catch(err => {
-				console.error("Error on logout:", err);
-				redirectToLoginPage();
-			})
+			// log out and redirect at the same time, to reduce latency
+			// not super duper great since logout could fail but w/e :P
+			// also no need to actually await them even
+			await Promise.all([api.logout(), redirectToLoginPage()]);
 		}
 	}
 }

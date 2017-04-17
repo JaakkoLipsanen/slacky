@@ -95,7 +95,6 @@ export default class ChatClient {
 			catch(err) { /* return fail below */ }
 		}
 
-		console.log(result);
 		// todo: figure out precise reason why fail?
 		return { success: false, error: { type: "auth", message: "Could not open connection" } };
 	}
