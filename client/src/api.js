@@ -4,26 +4,24 @@ import config from './config';
 const axios = _axios.create({
 	baseURL: config.SERVER_URL,
 	withCredentials: true, // send credentials along on all requests
+
+	// throw error/reject only on 5xx errors
+	validateStatus: (status) => status >= 200 && status < 500
 });
 
 export default {
 	async login(userCredentials) {
 		const response = await axios.post('/api/auth/login', userCredentials);
-		return response.data.user;
+		return response.data;
 	},
 
 	async register(userCredentials) {
 		const response = await axios.post('/api/auth/register', userCredentials)
-		return response.data.user;
+		return response.data;
 	},
 
-	async logout(userCredentials) {
+	async logout() {
 		await axios.post('/api/auth/logout')
-	},
-
-	async validateCredentials(userCredentials) {
-		const response = await axios.post('/api/auth/validate-credentials', userCredentials);
-		return response.data.valid;
 	},
 
 	// returns the logged in user

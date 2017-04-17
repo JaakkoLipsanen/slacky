@@ -16,7 +16,6 @@ export default {
 		setTimeout(() => {
 			$("#loading-page p").css("opacity", 1);
 		}, ALLOWED_LATENCY);
-
 	}
 }
 

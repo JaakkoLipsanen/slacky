@@ -1,6 +1,6 @@
 <template>
 	<div class="room-list">
-		<h4 class="rooms-header">ROOMS</h4> 
+		<h4 class="rooms-header">ROOMS</h4>
 		<a class="new-room-button" @click="showPopup">+</a>
 
 		<div v-for="room in $store.state.chatClient.rooms" class="room-entry-container" :class="{ selected: (room === $store.state.currentRoom) }">
@@ -18,8 +18,10 @@ export default {
 		...mapMutations(['changeRoom']),
 
 		async showPopup() {
-			const payload = await this.$popup.show('new-room-popup');
-			this.$store.dispatch('createNewRoom', payload.roomName)
+			const result = await this.$popup.show('new-room-popup');
+			if(result.success) {
+				this.$store.dispatch('createNewRoom', result.payload.roomName)
+			}
 		}
 	}
 }
@@ -48,7 +50,7 @@ $active-color: rgb(224, 224, 224);
 	float: right;
 	margin-right: 16px;
 
-	font-size: 18px; 
+	font-size: 18px;
 	font-weight: 600;
 	color: $text-color;
 
@@ -68,7 +70,7 @@ $active-color: rgb(224, 224, 224);
 	width: 95%;
 
 	padding: 2px;
-	padding-left: 4px;	
+	padding-left: 4px;
 	border-radius: 4px;
 
 	&.selected {
@@ -84,7 +86,7 @@ $active-color: rgb(224, 224, 224);
 	font-size: 16px;
 	font-weight: 600;
 	color: $text-color;
-	
+
 	cursor: pointer;
 	text-decoration: none;
 
