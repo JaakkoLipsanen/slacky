@@ -55,16 +55,6 @@ const categorize = (time, now) => {
 		return "In the future!";
 	}
 
-	// over two years older (for example, Jan 2017 and Dec 2015)
-	// OR over one year older (diff in years == 1 and month is higher than in relativeTo)
-	if(time.getFullYear() + 1 < now.getFullYear() ||
-		(time.getFullYear() + 1 === now.getFullYear() &&
-		time.getMonth() <= now.getMonth())) {
-
-		// "January, 2015" for example
-		return `${Months[time.getMonth()]} ${time.getFullYear()}`;
-	}
-
 	const diffInDays = differenceInDays(time, now);
 	if(diffInDays < 14) { // less than two weeks
 		const weekDayNow = weekday(now)
@@ -84,34 +74,83 @@ const categorize = (time, now) => {
 		}
 	}
 
-	if(time.getMonth() != now.getMonth()) {
-		if((time.getMonth() == now.getMonth() - 1 && time.getFullYear() == now.getFullYear()) ||
-		   (time.getMonth() == 11 && now.getMonth() == 0 && time.getFullYear() + 1 == now.getFullYear())) {
-
-			return "Last month";
-		}
-
-		// if same year, then don't put "Last " in front of the month
-		if(time.getFullYear() === now.getFullYear()) {
-			return `${Months[time.getMonth()]}`
-		}
-
-		return `Last ${Months[time.getMonth()]}`;
+	const MonthAndDay = `${Months[time.getMonth()]} ${addDaySuffix(time.getDate())}`;
+	if(time.getFullYear() === now.getFullYear()) { // if same year, then don't display year
+		return MonthAndDay;
 	}
 
-	return `${Months[time.getMonth()]} ${addDaySuffix(time.getDate())} `
+	// if the message was sent on a previous year, then display the year as well
+	return `${MonthAndDay}, ${time.getFullYear()}`;
+};
+
+// returns array of { title: "DISPLAY DATE STRING", messages: [] }
+const groupMessagesByDate = (messages) => {
+	const NOW = new Date();
+
+	const groups = [];
+	let currentGroup = { title: undefined, messages: [] };
+
+	for(const message of messages) {
+		const categorized = categorize(new Date(message.timestamp), NOW);
+		if(categorized !== currentGroup.title) {
+			if(currentGroup.messages.length > 0) {
+				groups.push(currentGroup);
+			}
+
+			currentGroup = { title: categorized, messages: [message] };
+			continue;
+		}
+
+		currentGroup.messages.push(message);
+	}
+
+	if(currentGroup.messages.length > 0) {
+		groups.push(currentGroup);
+	}
+
+	return groups;
 };
 
 export default {
-	groupByDate(messages) {
-		const NOW = Date.now();
 
-		const groups = [];
-		const currentGroup = [];
-		for(const message of messages) {
-			const categorized = categorize(new Date(message.timestamp));
+	// returns an array of { dateString, messagesGroupedByUser[] },
+	// where in messagesGroupedByUser are objects of { sender, messages[] }
+	groupByDateAndUser(messages) {
+		const messagesGroupedByDate = groupMessagesByDate(messages);
+
+		const finalGroups = [];
+		for(let dateGroup of messagesGroupedByDate) {
+
+			const dayGroup = {
+				dateString: dateGroup.title,
+				messagesGroupedByUser: []
+			};
+
+			let currentGroup = { sender: { }, messages: [] };
+			for(let message of dateGroup.messages) {
+				if(message.sender.id !== currentGroup.sender.id) {
+					if(currentGroup.messages > 0) {
+						dayGroup.messagesGroupedByUser.push(currentGroup);
+					}
+
+					currentGroup = { sender: message.sender, messages: [message] };
+					continue;
+				}
+
+				currentGroup.messages.push(message);
+			}
+
+			if(currentGroup.messages.length > 0) {
+				dayGroup.messagesGroupedByUser.push(currentGroup);
+			}
+
+			finalGroups.push(dayGroup);
 		}
+
+		return finalGroups;
 	},
+
+
 
 	categorizeDate: categorize
 };

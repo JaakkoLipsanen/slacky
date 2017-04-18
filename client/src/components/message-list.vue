@@ -1,15 +1,21 @@
 <template>
 	<ul class='message-list'>
-		<li v-for="msg in displayedMessages">
-			<div class="profile-pic" :style="`background-image: url( ${getProfilePic(msg.sender)} )`" />
+		<div v-for="dateGroup in messagesGroupedByDate">
+			<div v-for="messagesGroupedByUser in dateGroup.messagesGroupedByUser">
+				<li v-for="msg in messagesGroupedByUser.messages">
+					<div class="profile-pic"
+						:style="`background-image: url( ${getProfilePic(messagesGroupedByUser.sender)} )`"> </div>
 
-			<div class="message-text-container">
-				<h4 class="message-sender">{{ msg.sender.username }}</h4>
-				<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
-				<h4 class="message-text">{{ msg.text }}</h4>
+					<div class="message-text-container">
+						<h4 class="message-sender">{{ msg.sender.username }}</h4>
+						<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
+						<h4 class="message-text">{{ msg.text }}</h4>
+					</div>
+				</li>
 			</div>
-		</li>
-		<li v-for="group in messageGroups"></li>
+
+			<p class="message-group-title">{{ dateGroup.dateString }} </p>
+		</div>
 	</ul>
 </template>
 
@@ -28,8 +34,9 @@ export default {
 			return this.$store.state.currentRoom.messages.slice().reverse();
 		},
 
-		messageGroups() {
-			const groups = groupify.groupByDate(this.$store.state.currentRoom.messages.slice().reverse());
+		messagesGroupedByDate() {
+			return groupify.groupByDateAndUser(
+				this.$store.state.currentRoom.messages.slice().reverse());
 		}
 	},
 
@@ -104,11 +111,17 @@ $profile-pic-margin: 3px;
 	margin: 0px;
 }
 
+.message-group-title {
+	font-size: 16px;
+	font-weight: 600;
+	margin-top: 5px;
+}
+
 /* very much of an hack :P makes the list items be aligned from bottom to top.
    also causes the list items to be rendered in wrong order, which is why displayMessages
    computed property is required. look into whether bottom-align ul can be done nicer */
 /* TODO: this also causes the scrollign to be inverted :D ! */
-ul, ul li {
+.message-list, .message-list li, .message-group-title {
 	transform: scaleY(-1);
 }
 
