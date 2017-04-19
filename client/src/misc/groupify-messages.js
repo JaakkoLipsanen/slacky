@@ -1,138 +1,47 @@
-// groups messages by date
+/* PSA: REALLY UGLY CODE IN HERE :P */
 
-
-const Months = [
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-];
-
-// as Date.getDay() returns (0-6)
-const Weekdays = [
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Sunday",
-];
-
-const _MS_PER_DAY = 1000 * 60 * 60 * 24;
-const differenceInDays = (a, b) => {
-	// Discard the time and time-zone information.
-	let utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-	let utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-
-	return Math.floor((utc2 - utc1) / _MS_PER_DAY);
-}
-
-// date.getDay returns sunday = 0, and we want monday = 0
-const weekday = (date) => (date.getDay() == 0) ? 6 : date.getDay() - 1;
-const addDaySuffix = (day) => {
-	const mod = day % 10;
-	if(day < 10 || day > 20) {
-		if(day == 1) return day + "st";
-		if(day == 2) return day + "nd";
-		if(day == 3) return day + "rd";
-	}
-
-	return day + "th";
+const isSameDay = (date1, date2) => date1 && date2 && date1.toDateString() === date2.toDateString();
+const addGroupIfNotEmpty = (toWhere, groupToAdd) => {
+	if(groupToAdd.messages.length > 0) toWhere.push(groupToAdd);
 };
 
-// relativeTo == Date.NOW
-const categorize = (time, now) => {
-	if(time > now) {
-		return "In the future!";
-	}
-
-	const diffInDays = differenceInDays(time, now);
-	if(diffInDays < 14) { // less than two weeks
-		const weekDayNow = weekday(now)
-		if(diffInDays === 0) {
-			return "Today";
-		}
-		else if(diffInDays === 1) {
-			return "Yesterday";
-		}
-		else if(diffInDays <= weekDayNow) {
-			// The code comes here if the day is on the same week as now
-			// for example, if it's Thursday, then Mon-Tue will come here
-			return Weekdays[weekday(time)];
-		}
-		else if(diffInDays <= weekDayNow + 7) {
-			return `Last ${Weekdays[weekday(time)]}`;
-		}
-	}
-
-	const MonthAndDay = `${Months[time.getMonth()]} ${addDaySuffix(time.getDate())}`;
-	if(time.getFullYear() === now.getFullYear()) { // if same year, then don't display year
-		return MonthAndDay;
-	}
-
-	// if the message was sent on a previous year, then display the year as well
-	return `${MonthAndDay}, ${time.getFullYear()}`;
-};
-
-// returns array of { title: "DISPLAY DATE STRING", messages: [] }
-const groupMessagesByDate = (messages) => {
-	const NOW = new Date();
-
+// returns array of { day: Date, messages: [] }
+const groupMessagesByDay = (messages) => {
 	const groups = [];
-	let currentGroup = { title: undefined, messages: [] };
+	let currentGroup = { day: undefined, messages: [] };
 
 	for(const message of messages) {
-		const categorized = categorize(new Date(message.timestamp), NOW);
-		if(categorized !== currentGroup.title) {
-			if(currentGroup.messages.length > 0) {
-				groups.push(currentGroup);
-			}
+		if(!isSameDay(new Date(message.timestamp), currentGroup.day)) {
 
-			currentGroup = { title: categorized, messages: [message] };
+			addGroupIfNotEmpty(groups, currentGroup);
+			currentGroup = { day: new Date(message.timestamp), messages: [message] };
 			continue;
 		}
 
 		currentGroup.messages.push(message);
 	}
 
-	if(currentGroup.messages.length > 0) {
-		groups.push(currentGroup);
-	}
-
+	addGroupIfNotEmpty(groups, currentGroup);
 	return groups;
 };
 
 export default {
 
-	// returns an array of { dateString, messagesGroupedByUser[] },
+	// returns an array of { dateRelatively, userMessageGroups[] },
 	// where in messagesGroupedByUser are objects of { sender, messages[] }
-	groupByDateAndUser(messages) {
-		const messagesGroupedByDate = groupMessagesByDate(messages);
-
+	groupByDayAndUser(messages) {
+		const messagesGroupedByDay = groupMessagesByDay(messages);
 		const finalGroups = [];
-		for(let dateGroup of messagesGroupedByDate) {
 
-			const dayGroup = {
-				dateString: dateGroup.title,
-				messagesGroupedByUser: []
-			};
+		// bad name :P dayGroup == contains messages from a single day
+		for(let dayGroup of messagesGroupedByDay) {
+			const userMessageGroups = [];
 
 			let currentGroup = { sender: { }, messages: [] };
-			for(let message of dateGroup.messages) {
+			for(let message of dayGroup.messages) {
 				if(message.sender.id !== currentGroup.sender.id) {
-					if(currentGroup.messages > 0) {
-						dayGroup.messagesGroupedByUser.push(currentGroup);
-					}
 
+					addGroupIfNotEmpty(userMessageGroups, currentGroup);
 					currentGroup = { sender: message.sender, messages: [message] };
 					continue;
 				}
@@ -140,17 +49,10 @@ export default {
 				currentGroup.messages.push(message);
 			}
 
-			if(currentGroup.messages.length > 0) {
-				dayGroup.messagesGroupedByUser.push(currentGroup);
-			}
-
-			finalGroups.push(dayGroup);
+			addGroupIfNotEmpty(userMessageGroups, currentGroup);
+			finalGroups.push({ day: dayGroup.day, messagesGroupedBySender: userMessageGroups });
 		}
 
 		return finalGroups;
 	},
-
-
-
-	categorizeDate: categorize
 };

@@ -1,20 +1,38 @@
 <template>
+	<!-- TODO: this is awful :D split this to smaller components or something -->
+	
 	<ul class='message-list'>
-		<div v-for="dateGroup in messagesGroupedByDate">
-			<div v-for="messagesGroupedByUser in dateGroup.messagesGroupedByUser">
-				<li v-for="msg in messagesGroupedByUser.messages">
-					<div class="profile-pic"
-						:style="`background-image: url( ${getProfilePic(messagesGroupedByUser.sender)} )`"> </div>
+		<div class="date-message-block" v-for="dayGroup in messagesGroupedByDay">
 
-					<div class="message-text-container">
-						<h4 class="message-sender">{{ msg.sender.username }}</h4>
-						<h4 class="message-time">{{ formatTime(msg.timestamp) }}</h4>
-						<h4 class="message-text">{{ msg.text }}</h4>
+			<!-- The messages are grouped so that if one user sends multiple messages
+			     consecutively, the username and user's profile pic is displayed only once -->
+			<div class="user-message-block" v-for="senderGroup in dayGroup.messagesGroupedBySender">
+
+				<!-- Show the profile pic on the left -->
+				<div class="profile-pic"
+					:style="`background-image: url( ${getProfilePic(senderGroup.sender)} )`"> </div>
+
+				<!-- Then, to the right of the profile pic, display the
+				     sender's name and all consecutive messages by the user -->
+				<div class="message-content-group">
+					<h4 class="message-sender">{{ senderGroup.sender.username }}</h4>
+					<h4 class="message-time">{{ formatTime(senderGroup.messages[0].timestamp) }}</h4>
+
+					<!-- The consecutive messages -->
+					<div class="consecutive-messages-list">
+						<li v-for="msg in senderGroup.messages">
+							<div class="message-content-container">
+								<h4 class="message-text">{{ msg.text }}</h4>
+								<h4 class="time">{{ formatTime(msg.timestamp) }}</h4>
+							</div>
+						</li>
 					</div>
-				</li>
+
+				</div>
 			</div>
 
-			<p class="message-group-title">{{ dateGroup.dateString }} </p>
+			<!-- The date "divider", (like "Today, "Yesterday", "March 5th" etc) -->
+			<p class="message-date-divider">{{ getRelativeDate(dayGroup.day) }} </p>
 		</div>
 	</ul>
 </template>
@@ -22,6 +40,7 @@
 <script>
 
 import profilePicCache from '../misc/profile-pic-cache';
+import relativeDate from '../misc/relative-date';
 import groupify from '../misc/groupify-messages';
 
 export default {
@@ -29,21 +48,23 @@ export default {
 	name: 'message-list',
 	computed: {
 
-		// why? see explanation below in the css
 		displayedMessages() {
+			// why reverse? see explanation below in the css
 			return this.$store.state.currentRoom.messages.slice().reverse();
 		},
 
-		messagesGroupedByDate() {
-			return groupify.groupByDateAndUser(
-				this.$store.state.currentRoom.messages.slice().reverse());
+		// see groupify-messages.js to see what this returns
+		messagesGroupedByDay() {
+			return groupify.groupByDayAndUser(this.displayedMessages);
 		}
 	},
 
 	methods: {
 		getProfilePic: (user) => profilePicCache.get(user),
+		getRelativeDate: relativeDate.getRelativeDate,
+
 		formatTime(date) {
-			const pad = (num) => (num < 10 ? "0" : "") + num;
+			const pad = (num) => (num < 10 ? "0" : "") + num; // 3 -> "03" etc
 
 			date = date.getHours ? date : new Date(date); // if date is not Date object, then convert it
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
@@ -57,10 +78,10 @@ export default {
 .message-list {
 	padding-left: 2px;
 	margin: 0px;
+}
 
-	li {
-		margin-top: 12px;
-	}
+.user-message-block {
+	margin-bottom: 12px;
 }
 
 $profile-pic-size: 40px;
@@ -76,32 +97,34 @@ $profile-pic-margin: 3px;
 	background-position: center;
 }
 
-.message-text-container {
-	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin});
+.message-content-group {
 	display: inline-block;
 }
 
 .message-sender {
 	display: inline-block;
-	font-size: 15px;
-	font-weight: 900;
-
-	margin-top: 0px;
+	margin: 0px;
 	margin-bottom: 4px;
 
+	font-size: 15px;
+	font-weight: 900;
 	color: rgb(64, 64, 64);
 }
 
 .message-time {
 	display: inline-block;
-	font-size: 12px;
-	font-weight: 600;
-
-	margin-top: 0;
-	margin-bottom: 0px;
+	margin: 0px;
 	margin-left: 4px;
 
+	font-size: 12px;
+	font-weight: 600;
 	color: rgb(144, 144, 144);
+}
+
+.message-content-container {
+	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin});
+	display: inline-block;
+	white-space: nowrap;
 }
 
 .message-text {
@@ -109,9 +132,38 @@ $profile-pic-margin: 3px;
 	font-weight: 500;
 
 	margin: 0px;
+	display: inline-block;
 }
 
-.message-group-title {
+.consecutive-messages-list {
+	margin-top: -4px;
+
+	li {
+		list-style: none;
+		margin: 0px;
+		margin-top: 3px;
+
+		.time {
+			display: inline;
+			margin-left: 14px;
+
+			transition: opacity 0.4s;
+			opacity: 0;
+
+			font-size: 12px;
+			font-weight: 600;
+			color: rgb(174, 174, 174);
+		}
+
+		&:hover {
+			.time {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+.message-date-divider {
 	font-size: 16px;
 	font-weight: 600;
 	margin-top: 5px;
@@ -121,7 +173,7 @@ $profile-pic-margin: 3px;
    also causes the list items to be rendered in wrong order, which is why displayMessages
    computed property is required. look into whether bottom-align ul can be done nicer */
 /* TODO: this also causes the scrollign to be inverted :D ! */
-.message-list, .message-list li, .message-group-title {
+.message-list, .message-date-divider, .user-message-block, .consecutive-messages-list, .consecutive-messages-list li  {
 	transform: scaleY(-1);
 }
 
