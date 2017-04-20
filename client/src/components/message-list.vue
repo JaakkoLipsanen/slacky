@@ -1,6 +1,6 @@
 <template>
 	<!-- TODO: this is awful :D split this to smaller components or something -->
-	
+
 	<ul class='message-list'>
 		<div class="date-message-block" v-for="dayGroup in messagesGroupedByDay">
 
@@ -78,6 +78,8 @@ export default {
 .message-list {
 	padding-left: 2px;
 	margin: 0px;
+
+	overflow-x: hidden;
 }
 
 .user-message-block {

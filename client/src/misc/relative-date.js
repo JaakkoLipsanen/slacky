@@ -49,10 +49,6 @@ const toOrdinalNumber = (day) => { // 1 -> "1st" etc
 
 // returns for example "Yesterday", "Last Tuesday", "March 20th", "July 2nd, 2015"
 const categorizeRelatively = (time, now) => {
-	if(time > now) {
-		// TODO: display a more descriptive date :P ?
-		return "In the future!";
-	}
 
 	const diffInDays = differenceInDays(time, now);
 	if(diffInDays < DAYS_IN_WEEK * 2) { // less than two weeks
@@ -72,6 +68,13 @@ const categorizeRelatively = (time, now) => {
 		else if(diffInDays <= weekDayNow + 7) {
 			// last week
 			return `Last ${Weekdays[weekday(time)]}`;
+		}
+		// aka, IS IN THE FUTURE
+		else if(diffInDays < 0) {
+			if(diffInDays === -1) return "Tomorrow";
+
+			// TODO: display a more descriptive date :P ?
+			return "In the future!";
 		}
 	}
 
