@@ -101,6 +101,9 @@ $profile-pic-margin: 3px;
 
 .message-content-group {
 	display: inline-block;
+	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin});
+	width: 100%;
+	white-space: nowrap;
 }
 
 .message-sender {
@@ -124,9 +127,8 @@ $profile-pic-margin: 3px;
 }
 
 .message-content-container {
-	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin});
 	display: inline-block;
-	white-space: nowrap;
+	width: 100%;
 }
 
 .message-text {
@@ -135,6 +137,11 @@ $profile-pic-margin: 3px;
 
 	margin: 0px;
 	display: inline-block;
+	white-space: normal;
+	overflow-wrap: break-word;
+
+	/* - 50px so that there is space for the time (when hovered) on the right of the text */
+	max-width: calc(100% - 50px)
 }
 
 .consecutive-messages-list {
