@@ -2,6 +2,11 @@
 	<div id="sidebar">
 		<ProfileInfo></ProfileInfo>
 		<RoomList></RoomList>
+
+		<!-- Link to Github -->
+		<a class="github-link" target="_blank" href="https://github.com/JaakkoLipsanen/slacky">
+			GitHub
+		</a>
 	</div>
 </template>
 
@@ -23,6 +28,16 @@ export default {
 #sidebar {
 	background-color: rgb(58, 58, 72);
 	height: 100%;
+
+	.github-link {
+		position: absolute;
+		bottom: 10px;
+
+		color: rgb(110, 110, 110);
+		font-weight: 800;
+		font-size: 16px;
+		text-decoration: none;
+	}
 }
 
 </style>
