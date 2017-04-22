@@ -49,6 +49,10 @@ $container-height: 40px;
 	vertical-align: middle;
 	margin: 0;
 	margin-left: 4px;
+
+	max-width: 122px; /* meh, hardcoded. calc didn't work for some reason? */
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .profile-pic {

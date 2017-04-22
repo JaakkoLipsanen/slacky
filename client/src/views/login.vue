@@ -3,6 +3,7 @@
 		<div class="form-container">
 			<p ref="errorMessage" class="error-message hidden">{{ errorMessage }}</p>
 			<SignInForm
+				class="sign-in-form"
 				ref="signInForm"
 				:validate-username="validateUsername"
 				:validate-password="validatePassword"
@@ -40,12 +41,13 @@ export default {
 
 	mounted() {
 		this.errorMessage = this.$router.pageParams.errorMessage || "";
+		$(".sign-in-form .username-input").focus(); // autofocus doesn't work on SPA's
 	},
 
 	methods: {
 		validateUsername(username) {
 			const MinLength = 4;
-			const MaxLength = 13;
+			const MaxLength = 11;
 			const Regex = (/^[a-zA-Z0-9-_]+$/);
 
 			return Boolean(
