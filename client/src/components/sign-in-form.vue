@@ -21,7 +21,7 @@
 			placeholder="Enter password"
 			type="password">
 
-		<button class="enter-button" :disabled="!usernameValid || !passwordValid" @click="submit">{{ submitText }}</button>
+		<button class="submit-button" :disabled="!usernameValid || !passwordValid || isAuthenticating" @click="submit">{{ isAuthenticating ? "Authenticating..." : submitText }}</button>
 	</div>
 </template>
 
@@ -42,6 +42,8 @@ export default {
 
 			usernameValid: false,
 			passwordValid: false,
+
+			isAuthenticating: false
 		}
 	},
 
@@ -63,7 +65,9 @@ export default {
 		},
 
 		async submit() {
+			this.isAuthenticating = true;
 			await Promise.resolve(this.onSubmit(this.username, this.password));
+			this.isAuthenticating = false;
 		},
 
 		reset() {
@@ -132,7 +136,7 @@ $transition-length: 0.35s;
 	}
 }
 
-.generated-profile-pic, .enter-button {
+.generated-profile-pic, .submit-button {
 	transition: opacity $transition-length, background $transition-length;
 
 	&.visible {
@@ -141,7 +145,7 @@ $transition-length: 0.35s;
 }
 
 $button-base-color: palegreen;
-.enter-button {
+.submit-button {
 	width: 100%;
 	height: 64px;
 	margin-top: 0px;
