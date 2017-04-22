@@ -37,6 +37,10 @@ export default {
 		font-weight: 800;
 		font-size: 16px;
 		text-decoration: none;
+
+		&:hover {
+			color: rgb(145, 145, 145);
+		}
 	}
 }
 
