@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const SaltRounds = 8; // 10 would be 'better' but since I check password as user types, faster == better
+const SaltRounds = 9;
 
 module.exports = {
 	hash(password) {
