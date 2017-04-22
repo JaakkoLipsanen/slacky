@@ -92,6 +92,16 @@ export default {
 				await this.$router.redirect('App');
 			}
 			else {
+				// sooo.... this is fucking stupid :D the reason why I sleep here
+				// is because usually on normal connection, if the authentication
+				// fails, it will be so quick that the sign-in button animation looks
+				// stupid and unpolished. If the authentication works, then there
+				// will be another call to server and fading out of the login screen
+				// and since that takes some time, it doesn't look bad. But when it fails,
+				// it just looks better with this delay
+				const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+				await sleep(500);
+
 				this._showError(result.error.message);
 
 				// result.error.type == "username" or "password"
