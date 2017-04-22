@@ -89,7 +89,7 @@ export default {
 					return;
 				}
 
-				this.$router.redirect('App');
+				await this.$router.redirect('App');
 			}
 			else {
 				this._showError(result.error.message);
