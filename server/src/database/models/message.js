@@ -1,7 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
 
 	const Message = sequelize.define('messages', {
-		text: { type: DataTypes.STRING },
+		text: { type: DataTypes.TEXT },
 		timestamp: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 	});
 
