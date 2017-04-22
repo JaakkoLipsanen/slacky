@@ -3,7 +3,7 @@
 
 [**You can try it here!**](https://flai.xyz/slacky/)
 
-**Technologies used:**
+### Technologies used:
 - [**vuejs**](https://vuejs.org/) front-end framework
 - [**express/node**](http://expressjs.com/) back-end framework
 - [**socket.io**](http://socket.io/) for web-sockets
@@ -11,7 +11,7 @@
 - [**PostgreSQL**](https://www.postgresql.org/) for database
 - [**sequelize**](sequelizejs.com) for database ORM
 
-**How to run locally?**  
+### How to run locally?  
 *Setting up is not very easy so I would not recommend it :P*  
 
 **Requirements:** yarn, postgres  
