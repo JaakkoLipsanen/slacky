@@ -139,6 +139,7 @@ $profile-pic-margin: 3px;
 	display: inline-block;
 	white-space: normal;
 	overflow-wrap: break-word;
+	user-select:  initial; /* allow user to select text (disabled elsewhere by default) */
 
 	/* - 50px so that there is space for the time (when hovered) on the right of the text */
 	max-width: calc(100% - 50px)

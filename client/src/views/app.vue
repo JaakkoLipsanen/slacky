@@ -36,6 +36,7 @@ export default {
 	margin: 0px;
 	height: 100vh;
 	box-sizing: border-box;
+	user-select: none; /* disable selecting text by default (overridable) */
 }
 
 $sidebar-width: 250px;
