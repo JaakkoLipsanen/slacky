@@ -1,10 +1,17 @@
 <template>
 	<div class="popup-background">
 		<div class="popup">
-			<input ref="roomName" type='text' v-model="roomName" placeholder="Enter name for the room" style="display: block" autofocus>
+			<input
+				ref="roomName"
+				type='text'
+				v-model="roomName"
+				placeholder="Enter name for the room"
+				@keydown.enter="submit"
+				autocapitalize="none"
+				autocomplete="off" autofocus>
 
 			<div class="button-container">
-				<button class="create-button" :disabled="!isInputValid" @click="$emit('success', { roomName: $refs.roomName.value })">Create</button>
+				<button class="create-button" :disabled="!isNameValid" @click="submit">Create</button>
 				<button class="cancel-button" @click="$emit('cancel')">Cancel</button>
 			</div>
 		</div>
@@ -21,8 +28,20 @@ export default {
 		};
 	},
 
+	mounted() {
+		$(".popup input").focus();
+	},
+
+	methods: {
+		submit() {
+			if(this.isNameValid) {
+				this.$emit('success', { roomName: this.$refs.roomName.value })
+			}
+		}
+	},
+
 	computed: {
-		isInputValid() {
+		isNameValid() {
 			const MinLength = 3;
 			const MaxLength = 18;
 
@@ -99,6 +118,7 @@ button {
 .popup {
 	width: 450px;
 	height: 180px;
+	max-width: 95%;
 
 	position: absolute;
 	top: 50%;

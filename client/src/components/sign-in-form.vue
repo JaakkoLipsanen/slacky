@@ -4,16 +4,19 @@
 
 		<!-- Username -->
 		<input
+			class="username-input"
 			v-model="username"
 			ref="usernameInput"
 			@input="usernameChanged"
 			placeholder="Enter your username"
 			type="text"
+			autocapitalize="none"
 			autocomplete="off"
 			autofocus>
 
 		<!-- Password -->
 		<input
+			class="password-input"
 			v-model="password"
 			ref="passwordInput"
 			@input="passwordChanged"
