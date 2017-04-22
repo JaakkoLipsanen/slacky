@@ -12,9 +12,10 @@
 - [**sequelize**](sequelizejs.com) for database ORM
 
 ### How to run locally?  
-*Setting up is not very easy so I would not recommend it :P*  
 
+*Setting up is not very easy so I would not recommend running locally :P*  
 **Requirements:** yarn, postgres  
+
 **Step 1.** Clone the repository  
 **Step 2.** Build with `yarn install` (or npm, but I'm not 100% sure it works)  
 **Step 3.** Create postgres database and set `DATABASE_URL` enviroment variable 
