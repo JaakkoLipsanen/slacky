@@ -1,5 +1,10 @@
 <template>
-	<textarea class="input-field" ref="input" @keydown.enter="onEnterPressed" placeholder="enter message" autofocus></textarea>
+	<textarea
+		ref="input"
+		class="input-field"
+		@keydown.enter="onEnterPressed"
+		placeholder="enter message" autofocus>
+	</textarea>
 </template>
 
 <script>
@@ -9,32 +14,26 @@ export default {
 	name: 'message-input',
 
 	mounted() {
-	//	this.forceAlwaysFocused(this.$refs.input);
+		// when room changes, refocus message-input
+		this.$store.watch(
+			state => state.currentRoom,
+			() => this.$refs.input.focus()
+		);
 	},
-	
+
 	methods: {
 		onEnterPressed(event) {
 			event.preventDefault(); // makes the element ignore default enter press behavior
 
 			const inputField = event.target;
 			const text = inputField.value;
-			
+
 			if(text.trim().length > 0) { // if not empty message
 				this.$store.dispatch('sendMessage', text);
 			}
-			
+
 			// clear the input field
 			inputField.value = "";
-		},
-
-		forceAlwaysFocused(textarea) {
-			textarea.focus();
-			textarea.onblur = () => setTimeout(() => textarea.focus()); // onblur == "on unfocus"
-			textarea.onkeydown = e => { 
-				// prevents default tab behavior (tab == 9)
-				const key = e.which || e.keyCode;
-				if(key == 9) e.preventDefault() 
-			};
 		},
 	}
 }
@@ -51,7 +50,7 @@ export default {
 
 	resize: none;
     outline: none;
-	
+
 	font-size: 20px;
 	font-weight: 500;
 }
