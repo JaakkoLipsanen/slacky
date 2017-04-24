@@ -1,8 +1,13 @@
 <template>
 	<!-- TODO: this is awful :D split this to smaller components or something -->
 
-	<ul class='message-list'>
+	<ul class='message-list' @scroll="onScrollChanged">
+
+		<!-- The messages are grouped by day, one of these represents one day -->
 		<div class="date-message-block" v-for="dayGroup in messagesGroupedByDay">
+
+			<!-- The date "divider", (like "Today, "Yesterday", "March 5th" etc) -->
+			<p class="message-date-divider">{{ getRelativeDate(dayGroup.day) }} </p>
 
 			<!-- The messages are grouped so that if one user sends multiple messages
 			     consecutively, the username and user's profile pic is displayed only once -->
@@ -10,7 +15,7 @@
 
 				<!-- Show the profile pic on the left -->
 				<div class="profile-pic"
-					:style="`background-image: url( ${getProfilePic(senderGroup.sender)} )`"> </div>
+					:style="`background-image: url( ${getProfilePic(senderGroup.sender)} )`"></div>
 
 				<!-- Then, to the right of the profile pic, display the
 				     sender's name and all consecutive messages by the user -->
@@ -27,12 +32,8 @@
 							</div>
 						</li>
 					</div>
-
 				</div>
 			</div>
-
-			<!-- The date "divider", (like "Today, "Yesterday", "March 5th" etc) -->
-			<p class="message-date-divider">{{ getRelativeDate(dayGroup.day) }} </p>
 		</div>
 	</ul>
 </template>
@@ -47,15 +48,44 @@ export default {
 
 	name: 'message-list',
 	computed: {
+		currentRoom() {
+			return this.$store.state.currentRoom;
+		},
 
 		displayedMessages() {
-			// why reverse? see explanation below in the css
-			return this.$store.state.currentRoom.messages.slice().reverse();
+			return this.currentRoom.messages.slice();
 		},
 
 		// see groupify-messages.js to see what this returns
 		messagesGroupedByDay() {
 			return groupify.groupByDayAndUser(this.displayedMessages);
+		},
+	},
+
+	watch: {
+		currentRoom() {
+			// scroll to bottom when room changes
+			this.scrollToBottomNextUpdate = true;
+		},
+
+		displayedMessages() {
+			// when new message is sent, if the list was scrolled to the bottom before,
+			// then keep it scrolled down
+			if(this.isScrolledToBottom) {
+				this.scrollToBottomNextUpdate = true;
+			}
+		}
+	},
+
+	mounted() {
+		// scroll to bottom of the list when the message-list is loaded
+		this.scrollToBottom();
+	},
+
+	// updated is called after every (internal vue) render
+	updated() {
+		if(this.scrollToBottomNextUpdate) {
+			this.scrollToBottom();
 		}
 	},
 
@@ -68,6 +98,33 @@ export default {
 
 			date = date.getHours ? date : new Date(date); // if date is not Date object, then convert it
 			return pad(date.getHours()) + ":" + pad(date.getMinutes());
+		},
+
+		// updates the "isScrolledToBottom" variable when scroll changes
+		onScrollChanged() {
+			// how many pixels from the bottom is categorized as "is on bottom"
+			const IsScrolledToBottomBias = 20;
+
+			// based on http://stackoverflow.com/a/21067431
+			const messageList = $(".message-list")[0];
+
+			const totalHeight = messageList.scrollHeight;
+			const visibleHeight = messageList.clientHeight;
+			const scrollPosition = messageList.scrollTop; // the scroll position at the top
+			const distanceFromBottom = (totalHeight - visibleHeight) - scrollPosition;
+
+			this.isScrolledToBottom = distanceFromBottom <= IsScrolledToBottomBias;
+		},
+
+		scrollToBottom(immediate) {
+			const messageList = $(".message-list")[0];
+
+			const totalHeight = messageList.scrollHeight;
+			const visibleHeight = messageList.clientHeight;
+			messageList.scrollTop = totalHeight - visibleHeight;
+
+			this.isScrolledToBottom = true;
+			this.scrollToBottomNextUpdate = false;
 		}
 	}
 }
@@ -79,7 +136,13 @@ export default {
 	padding-left: 2px;
 	margin: 0px;
 
-	overflow-x: hidden;
+	display: flex;
+	flex-flow: column nowrap;
+
+	:first-child {
+		/* required for scrolling, justify-content: flex-end breaks scrolling */
+		margin-top: auto !important;
+	}
 }
 
 .user-message-block {
@@ -101,7 +164,7 @@ $profile-pic-margin: 3px;
 
 .message-content-group {
 	display: inline-block;
-	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin});
+	max-width: calc(100% - #{$profile-pic-size + 2 * $profile-pic-margin + 1px});
 	width: 100%;
 	white-space: nowrap;
 }
@@ -177,14 +240,6 @@ $profile-pic-margin: 3px;
 	font-size: 16px;
 	font-weight: 600;
 	margin-top: 5px;
-}
-
-/* very much of an hack :P makes the list items be aligned from bottom to top.
-   also causes the list items to be rendered in wrong order, which is why displayMessages
-   computed property is required. look into whether bottom-align ul can be done nicer */
-/* TODO: this also causes the scrollign to be inverted :D ! */
-.message-list, .message-date-divider, .user-message-block, .consecutive-messages-list, .consecutive-messages-list li  {
-	transform: scaleY(-1);
 }
 
 </style>
